@@ -29,6 +29,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * The base path for the Laravel installation.
+     * 当前项目在操作系统中的绝对路径
      *
      * @var string
      */
