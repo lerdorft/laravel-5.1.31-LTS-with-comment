@@ -149,16 +149,15 @@ class ClassLoader
     /**
      * Registers a set of PSR-4 directories for a given namespace, either
      * appending or prepending to the ones previously set for this namespace.
-     *
-     * @param string       $prefix  The prefix/namespace, with trailing '\\'
-     * @param array|string $paths   The PSR-4 base directories
-     * @param bool         $prepend Whether to prepend the directories
-     *
-     * @throws \InvalidArgumentException
-     * 
      * 如果没提供有效的 $prefix 则放入 $this->fallbackDirsPsr4
      * 否则就放入 $this->prefixDirsPsr4
      * 根据 $prepend 布尔值决定将 $paths 添加到数组的尾部还是头部
+     * 
+     * @param string       $prefix  The prefix/namespace, with trailing '\\'
+     * @param array|string $paths   The PSR-4 base directories
+     * @param bool         $prepend Whether to prepend the directories
+     * @throws \InvalidArgumentException
+     * 
      */
     public function addPsr4($prefix, $paths, $prepend = false)
     {
@@ -203,11 +202,11 @@ class ClassLoader
     /**
      * Registers a set of PSR-0 directories for a given prefix,
      * replacing any others previously set for this prefix.
+     * 和 add() 的区别在于 set() 是替换，add() 是添加
      *
      * @param string       $prefix The prefix
      * @param array|string $paths  The PSR-0 base directories
      * 
-     * 和 add() 的区别在于 set() 是替换，add() 是添加
      */
     public function set($prefix, $paths)
     {
@@ -221,13 +220,13 @@ class ClassLoader
     /**
      * Registers a set of PSR-4 directories for a given namespace,
      * replacing any others previously set for this namespace.
+     * 和 addPsr4() 的区别在于 setPsr4() 是替换，addPsr4() 是添加
      *
      * @param string       $prefix The prefix/namespace, with trailing '\\'
      * @param array|string $paths  The PSR-4 base directories
      *
      * @throws \InvalidArgumentException
      * 
-     * 和 addPsr4() 的区别在于 setPsr4() 是替换，addPsr4() 是添加
      */
     public function setPsr4($prefix, $paths)
     {
@@ -289,8 +288,12 @@ class ClassLoader
 
     /**
      * Registers this instance as an autoloader.
-     *
+     * 注册本类中的 loadClass() 为自动加载函数
+     * 注册失败抛出错误
+     * 根据 $prepend 加入自动加载函数执行队列 （TRUE = 插入最前端 FALSE = 添加至尾部）
+     * 
      * @param bool $prepend Whether to prepend the autoloader or not
+     * 
      */
     public function register($prepend = false)
     {
@@ -362,16 +365,23 @@ class ClassLoader
     private function findFileWithExtension($class, $ext)
     {
         // PSR-4 lookup
+        //$class传入前已去掉最左侧的 \
         //将 $class 中的 \ 替换成 DIRECTORY_SEPARATOR （windows = \ linux = /）
         //并拼接上文件类型后缀
         $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . $ext;
         $first = $class[0];
         if (isset($this->prefixLengthsPsr4[$first])) {
             foreach ($this->prefixLengthsPsr4[$first] as $prefix => $length) {
-                //判断 $class 是否以 $prefix 打头
+                /*
+                判断 $class 是否以 $prefix 打头，例如:
+                $class = Illuminate\Foundation\Application
+                $prefix = Illuminate\
+                $length = strlen($prefix) = 11
+                $logicalPathPsr4 = Illuminate/Foundation/Application.php
+                $file = $prefix 对应的目录 $dir + 目录分隔符 + $logicalPathPsr4 截取掉 $prefix 后的字符串（根据 $prefix 长度）
+                */
                 if (0 === strpos($class, $prefix)) {
                     foreach ($this->prefixDirsPsr4[$prefix] as $dir) {
-                        //$logicalPathPsr4 截取掉 $prefix
                         if (file_exists($file = $dir . DIRECTORY_SEPARATOR . substr($logicalPathPsr4, $length))) {
                             return $file;
                         }
@@ -381,6 +391,7 @@ class ClassLoader
         }
 
         // PSR-4 fallback dirs
+        //在添加或设置PSR4规则时如果没提供有效的 prefix 则 path 会被放入 $this->fallbackDirsPsr4
         foreach ($this->fallbackDirsPsr4 as $dir) {
             if (file_exists($file = $dir . DIRECTORY_SEPARATOR . $logicalPathPsr4)) {
                 return $file;
