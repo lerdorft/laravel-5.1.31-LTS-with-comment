@@ -11,6 +11,7 @@
 |
 */
 //传入当前项目在操作系统中的绝对路径实例化 Application 类
+
 $app = new Illuminate\Foundation\Application(
     realpath(__DIR__.'/../')
 );

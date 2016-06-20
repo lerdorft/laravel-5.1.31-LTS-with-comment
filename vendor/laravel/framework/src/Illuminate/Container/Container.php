@@ -125,7 +125,8 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Determine if the given abstract type has been bound.
-     *
+     * 判断在 $this->bindings，$this->instances,$this->aliases 中是否已绑定
+     * 
      * @param  string  $abstract
      * @return bool
      */
@@ -330,8 +331,10 @@ class Container implements ArrayAccess, ContainerContract
         // are using the correct name when binding the type. If we get an alias it
         // will be registered with the container so we can resolve it out later.
         if (is_array($abstract)) {
+            //$abstract = key($abstract)
+            //$alias = current($abstract)
             list($abstract, $alias) = $this->extractAlias($abstract);
-
+            //$this->aliases[$alias] = $abstract;
             $this->alias($abstract, $alias);
         }
 
@@ -1197,6 +1200,7 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Dynamically access container services.
+     * 获取对象属性
      *
      * @param  string  $key
      * @return mixed
@@ -1208,6 +1212,7 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Dynamically set container services.
+     * 设置对象属性
      *
      * @param  string  $key
      * @param  mixed   $value
