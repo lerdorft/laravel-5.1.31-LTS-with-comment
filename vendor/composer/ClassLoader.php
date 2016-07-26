@@ -127,7 +127,7 @@ class ClassLoader
 
             return;
         }
-        //取第一个字母作为数组的第一维键
+        // 取第一个字母作为数组的第一维键
         $first = $prefix[0];
         if (!isset($this->prefixesPsr0[$first][$prefix])) {
             $this->prefixesPsr0[$first][$prefix] = (array) $paths;
@@ -178,10 +178,10 @@ class ClassLoader
             // Register directories for a new namespace.
             $length = strlen($prefix);
             if ('\\' !== $prefix[$length - 1]) {
-                //PSR4风格的 prefix 必须以\结尾
+                // PSR4风格的 prefix 必须以\结尾
                 throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
             }
-            //记录 prefix 字符串长度
+            // 记录 prefix 字符串长度
             $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
             $this->prefixDirsPsr4[$prefix] = (array) $paths;
         } elseif ($prepend) {
@@ -235,10 +235,10 @@ class ClassLoader
         } else {
             $length = strlen($prefix);
             if ('\\' !== $prefix[$length - 1]) {
-                //PSR4风格的 prefix 必须以\结尾
+                // PSR4风格的 prefix 必须以\结尾
                 throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
             }
-            //记录 prefix 字符串长度
+            // 记录 prefix 字符串长度
             $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
             $this->prefixDirsPsr4[$prefix] = (array) $paths;
         }
@@ -332,17 +332,17 @@ class ClassLoader
     public function findFile($class)
     {
         // work around for PHP 5.3.0 - 5.3.2 https://bugs.php.net/50731
-        //去掉最左侧的 \
+        // 去掉最左侧的 \
         if ('\\' == $class[0]) {
             $class = substr($class, 1);
         }
         // class map lookup
-        //优先从 $this->classMap 中查找，找到则返回，不再继续执行
+        // 优先从 $this->classMap 中查找，找到则返回，不再继续执行
         if (isset($this->classMap[$class])) {
             return $this->classMap[$class];
         }
-        //如果设置 $this->classMapAuthoritative 为 TRUE 后，不尝试加载除 classMap
-        //定义外的类文件
+        // 如果设置 $this->classMapAuthoritative 为 TRUE 后，不尝试加载除 classMap
+        // 定义外的类文件
         if ($this->classMapAuthoritative) {
             return false;
         }
@@ -365,9 +365,9 @@ class ClassLoader
     private function findFileWithExtension($class, $ext)
     {
         // PSR-4 lookup
-        //$class传入前已去掉最左侧的 \
-        //将 $class 中的 \ 替换成 DIRECTORY_SEPARATOR （windows = \ linux = /）
-        //并拼接上文件类型后缀
+        // $class传入前已去掉最左侧的 \
+        // 将 $class 中的 \ 替换成 DIRECTORY_SEPARATOR （windows = \ linux = /）
+        // 并拼接上文件类型后缀
         $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . $ext;
         $first = $class[0];
         if (isset($this->prefixLengthsPsr4[$first])) {
@@ -391,7 +391,7 @@ class ClassLoader
         }
 
         // PSR-4 fallback dirs
-        //在添加或设置PSR4规则时如果没提供有效的 prefix 则 path 会被放入 $this->fallbackDirsPsr4
+        // 在添加或设置PSR4规则时如果没提供有效的 prefix 则 path 会被放入 $this->fallbackDirsPsr4
         foreach ($this->fallbackDirsPsr4 as $dir) {
             if (file_exists($file = $dir . DIRECTORY_SEPARATOR . $logicalPathPsr4)) {
                 return $file;
@@ -399,10 +399,10 @@ class ClassLoader
         }
 
         // PSR-0 lookup
-        //如果 $logicalPathPsr4 中存在  \ 
-        //则以 \ 分割的最后一段（Illuminate\Foundation\Application.php 的 Application.php）
-        //中的 _ 替换成系统对应的目录分隔符
-        //否则直接在 $class 中替换后赋值给 $logicalPathPsr0
+        // 如果 $logicalPathPsr4 中存在  \ 
+        // 则以 \ 分割的最后一段（Illuminate\Foundation\Application.php 的 Application.php）
+        // 中的 _ 替换成系统对应的目录分隔符
+        // 否则直接在 $class 中替换后赋值给 $logicalPathPsr0
         if (false !== $pos = strrpos($class, '\\')) {
             // namespaced class name
             $logicalPathPsr0 = substr($logicalPathPsr4, 0, $pos + 1)

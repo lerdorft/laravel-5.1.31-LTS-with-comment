@@ -174,17 +174,27 @@ class Container implements ArrayAccess, ContainerContract
         // If the given types are actually an array, we will assume an alias is being
         // defined and will grab this "real" abstract class name and register this
         // alias with the container so that it can be used as a shortcut for it.
+        
+        // 如果 $abstract 是数组，则实际执行 
+        // $abstract = key($abstract)
+        // $alias = current($abstract)
+        // $this->aliases[$alias] = $abstract;
         if (is_array($abstract)) {
+            // $abstract = key($abstract)
+            // $alias = current($abstract)
             list($abstract, $alias) = $this->extractAlias($abstract);
-
+            // $this->aliases[$alias] = $abstract;
             $this->alias($abstract, $alias);
         }
 
         // If no concrete type was given, we will simply set the concrete type to the
         // abstract type. This will allow concrete type to be registered as shared
         // without being forced to state their classes in both of the parameter.
+        
+        // 执行 unset($this->instances[$abstract], $this->aliases[$abstract]);
         $this->dropStaleInstances($abstract);
-
+        
+        // 如果 $concrete 为 NULL 使用 $abstract 代替
         if (is_null($concrete)) {
             $concrete = $abstract;
         }
@@ -192,15 +202,19 @@ class Container implements ArrayAccess, ContainerContract
         // If the factory is not a Closure, it means it is just a class name which is
         // bound into this container to the abstract type and we will just wrap it
         // up inside its own Closure to give us more convenience when extending.
+        
+        // $concrete 不是一个函数的话需要包装一下
         if (! $concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
         }
 
         $this->bindings[$abstract] = compact('concrete', 'shared');
-
+        
         // If the abstract type was already resolved in this container we'll fire the
         // rebound listener so that any objects which have already gotten resolved
         // can have their copy of the object updated via the listener callbacks.
+        
+        // return isset($this->resolved[$abstract]) || isset($this->instances[$abstract])
         if ($this->resolved($abstract)) {
             $this->rebound($abstract);
         }
@@ -321,7 +335,7 @@ class Container implements ArrayAccess, ContainerContract
     /**
      * Register an existing instance as shared in the container.
      *
-     * @param  string  $abstract
+     * @param  array|string  $abstract
      * @param  mixed   $instance
      * @return void
      */
@@ -330,11 +344,15 @@ class Container implements ArrayAccess, ContainerContract
         // First, we will extract the alias from the abstract if it is an array so we
         // are using the correct name when binding the type. If we get an alias it
         // will be registered with the container so we can resolve it out later.
+        // 如果 $abstract 是数组，则实际执行 
+        // $abstract = key($abstract)
+        // $alias = current($abstract)
+        // $this->aliases[$alias] = $abstract;
         if (is_array($abstract)) {
-            //$abstract = key($abstract)
-            //$alias = current($abstract)
+            // $abstract = key($abstract)
+            // $alias = current($abstract)
             list($abstract, $alias) = $this->extractAlias($abstract);
-            //$this->aliases[$alias] = $abstract;
+            // $this->aliases[$alias] = $abstract;
             $this->alias($abstract, $alias);
         }
 
@@ -343,10 +361,14 @@ class Container implements ArrayAccess, ContainerContract
         // We'll check to determine if this type has been bound before, and if it has
         // we will fire the rebound callbacks registered with the container and it
         // can be updated with consuming classes that have gotten resolved here.
+        
+        // 实际执行 
+        // isset($this->bindings[$abstract]) || isset($this->instances[$abstract]) || isset($this->aliases[$abstract]);
         $bound = $this->bound($abstract);
 
         $this->instances[$abstract] = $instance;
-
+        
+        //如果已绑定则重新绑定
         if ($bound) {
             $this->rebound($abstract);
         }
@@ -616,6 +638,7 @@ class Container implements ArrayAccess, ContainerContract
      */
     public function make($abstract, array $parameters = [])
     {
+        // 实际执行 isset($this->aliases[$abstract]) ? $this->aliases[$abstract] : $abstract;
         $abstract = $this->getAlias($abstract);
 
         // If an instance of the type is currently being managed as a singleton we'll
@@ -624,12 +647,14 @@ class Container implements ArrayAccess, ContainerContract
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
-
+        
         $concrete = $this->getConcrete($abstract);
 
         // We're ready to instantiate an instance of the concrete type registered for
         // the binding. This will instantiate the types, as well as resolve any of
         // its "nested" dependencies recursively until all have gotten resolved.
+        
+        // $this->isBuildable 返回 $concrete === $abstract || $concrete instanceof Closure;
         if ($this->isBuildable($concrete, $abstract)) {
             $object = $this->build($concrete, $parameters);
         } else {
@@ -1146,7 +1171,8 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Determine if a given offset exists.
-     *
+     * PHP 5 >= 5.0.0, PHP 7 实现的 ArrayAccess interface 中的方法
+     * 
      * @param  string  $key
      * @return bool
      */
@@ -1157,7 +1183,8 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Get the value at a given offset.
-     *
+     * PHP 5 >= 5.0.0, PHP 7 实现的 ArrayAccess interface 中的方法
+     * 
      * @param  string  $key
      * @return mixed
      */
@@ -1168,7 +1195,8 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Set the value at a given offset.
-     *
+     * PHP 5 >= 5.0.0, PHP 7 实现的 ArrayAccess interface 中的方法
+     * 
      * @param  string  $key
      * @param  mixed   $value
      * @return void
@@ -1189,7 +1217,8 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Unset the value at a given offset.
-     *
+     * PHP 5 >= 5.0.0, PHP 7 实现的 ArrayAccess interface 中的方法
+     * 
      * @param  string  $key
      * @return void
      */

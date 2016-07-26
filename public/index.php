@@ -18,7 +18,8 @@
 | loading any of our classes later on. It feels nice to relax.
 |
 */
-//最终加载的是 /vendor/composer/autoload_real.php
+// 加载的是 /bootstrap/autoload.php
+// 最终加载的是 /vendor/composer/autoload_real.php
 require __DIR__.'/../bootstrap/autoload.php';
 
 /*
@@ -32,7 +33,7 @@ require __DIR__.'/../bootstrap/autoload.php';
 | the responses back to the browser and delight our users.
 |
 */
-//加载的是 /bootstrap/app.php
+// 加载的是 /bootstrap/app.php
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
 /*

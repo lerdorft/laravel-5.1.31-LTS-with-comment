@@ -142,11 +142,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function __construct($basePath = null)
     {
         $this->registerBaseBindings();
-
+        
         $this->registerBaseServiceProviders();
-
+        
         $this->registerCoreContainerAliases();
-
+        
         if ($basePath) {
             $this->setBasePath($basePath);
         }
@@ -169,11 +169,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     protected function registerBaseBindings()
     {
-        //设置 static::$instance 为类自身,继承自 Container
+        // 实际执行 static::$instance = $this
         static::setInstance($this);
-
+        // 实际执行 $this->instances['app'] = $this    
         $this->instance('app', $this);
-
+        // 实际执行 $this->instances['Illuminate\Container\Container'] = $this    
         $this->instance('Illuminate\Container\Container', $this);
     }
 
@@ -184,8 +184,13 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     protected function registerBaseServiceProviders()
     {
+        // 类 EventServiceProvider 和 RoutingServiceProvider，
+        // 继承 Illuminate\Support\ServiceProvider
+        // 在构造函数中 $this->app 保存传入的 $this;
+        // 类 EventServiceProvider 中的 register 将使用到 $this->app 保存的容器对象，也就是这里传入构造函数的 $this; 
+        
         $this->register(new EventServiceProvider($this));
-
+        
         $this->register(new RoutingServiceProvider($this));
     }
 
@@ -274,19 +279,21 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Bind all of the application paths in the container.
-     *
+     * 设置 app, config, database, lang, public, storage 目录
+     * 
      * @return void
      */
     protected function bindPathsInContainer()
     {
-        //传入 'path' 以及当前项目根目录的 app 在操作系统中的绝对路径
+        // $this->instances['path'] = $this->path();
         $this->instance('path', $this->path());
-        //$this->instance('path.base', $this->basePath())
-        //$this->instance('path.config', $this->configPath())
-        //$this->instance('path.database', $this->databasePath())
-        //$this->instance('path.lang', $this->langPath())
-        //$this->instance('path.public', $this->publicPath())
-        //$this->instance('path.storage', $this->storagePath())
+        
+        // $this->instances['path.base'] = $this->basePath();
+        // $this->instances['path.config'] = $this->configPath();
+        // $this->instances['path.database'] = $this->databasePath();
+        // $this->instances['path.lang'] = $this->langPath();
+        // $this->instances['path.public'] = $this->publicPath();
+        // $this->instances['path.storage'] = $this->storagePath();
         foreach (['base', 'config', 'database', 'lang', 'public', 'storage'] as $path) {
             $this->instance('path.'.$path, $this->{$path.'Path'}());
         }
@@ -543,9 +550,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function register($provider, $options = [], $force = false)
     {
-        //根据 $provider（可以是类名或者是实例对象）去 $this->serviceProviders
-        //中寻找属于 $provider 一类的或者子类的 provider
-        //在 $force = false 的情况下返回找到的 provider，不再继续执行
+        // 根据 $provider（可以是类名或者是实例对象）去 $this->serviceProviders
+        // 中寻找属于 $provider 一类的或者子类的 provider （使用 instanceof 判断）
+        // 在 $force = false 的情况下返回找到的 provider，不再继续执行
         if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
         }
@@ -557,16 +564,21 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         if (is_string($provider)) {
             $provider = $this->resolveProviderClass($provider);
         }
-
+        
+        // 所有继承自 Illuminate\Support\ServiceProvider 接口的 provider 
+        // 都必须实现 register 方法;
         $provider->register();
-
+        
         // Once we have registered the service we will iterate through the options
         // and set each of them on the application so they will be available on
         // the actual loading of the service objects and for developer usage.
         foreach ($options as $key => $value) {
             $this[$key] = $value;
         }
-
+        
+        // $class = get_class($provider);
+        // 执行 $this->serviceProviders[] = $provider;
+        // 执行 $this->loadedProviders[$class] = true; 
         $this->markAsRegistered($provider);
 
         // If the application has already booted, we will call this boot method on
@@ -616,6 +628,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     protected function markAsRegistered($provider)
     {
+        // 调用 ArrayAccess 的 offsetGet 方法
+        // 实际执行 $this->make('events');
+
         $this['events']->fire($class = get_class($provider), [$provider]);
 
         $this->serviceProviders[] = $provider;
@@ -1073,7 +1088,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Register the core class aliases in the container.
-     * 循环地将一些键值对存入 $this->alias 中
+     * 循环地将一些键值对存入 $this->aliases 中
      * 
      * @return void
      */
@@ -1117,6 +1132,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
         foreach ($aliases as $key => $aliases) {
             foreach ((array) $aliases as $alias) {
+                // 实际执行 $this->aliases[$alias] = $key;
                 $this->alias($key, $alias);
             }
         }

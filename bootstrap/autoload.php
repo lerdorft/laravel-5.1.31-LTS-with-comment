@@ -1,6 +1,6 @@
 <?php
 
-//设置程序执行开始时间
+// 设置程序执行开始时间
 define('LARAVEL_START', microtime(true));
 
 /*
@@ -14,7 +14,7 @@ define('LARAVEL_START', microtime(true));
   | loading of any our classes "manually". Feels great to relax.
   |
  */
-//加载自动加载类文件 /vendor/autoload.php
+// 加载自动加载类文件 /vendor/autoload.php
 require __DIR__ . '/../vendor/autoload.php';
 
 /*
