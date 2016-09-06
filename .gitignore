@@ -1,3 +1,5 @@
-/node_modules
-Homestead.yaml
-Homestead.json
+storage/framework/cache/**/*
+storage/framework/sessions/**/*
+storage/framework/views/**/*
+storage/logs/**/*
+.*

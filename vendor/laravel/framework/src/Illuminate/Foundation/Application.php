@@ -28,7 +28,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     const VERSION = '5.1.31 (LTS)';
 
     /**
-     * The base path for the Laravel installation.
+     * The base path for the Laravel installation.<br>
      * 当前项目在操作系统中的绝对路径
      *
      * @var string
@@ -186,7 +186,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         // 类 EventServiceProvider 和 RoutingServiceProvider，
         // 继承 Illuminate\Support\ServiceProvider
-        // 在构造函数中 $this->app 保存传入的 $this;
+        // 在构造函数（继承自Illuminate\Support\ServiceProvider）中 $this->app 保存传入的 $this
         // 类 EventServiceProvider 中的 register 将使用到 $this->app 保存的容器对象，也就是这里传入构造函数的 $this; 
         
         $this->register(new EventServiceProvider($this));
@@ -261,8 +261,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Set the base path for the application.
-     * 设置传入的 $basePath 参数为项目根目录
+     * Set the base path for the application.<br>
+     * 设置传入的 $basePath 参数为项目根目录<br>
      * 同时绑定一些项目根目录下的目录至容器
      *
      * @param  string  $basePath
@@ -278,7 +278,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Bind all of the application paths in the container.
+     * Bind all of the application paths in the container.<br>
      * 设置 app, config, database, lang, public, storage 目录
      * 
      * @return void
@@ -300,7 +300,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the application "app" directory.
+     * Get the path to the application "app" directory.<br>
      * 返回项目根目录的 app 目录
      * 
      * @return string
@@ -311,8 +311,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the base path of the Laravel installation.
+     * Get the base path of the Laravel installation.<br>
      * 返回项目在操作系统中的绝对路径
+     * 
      * @return string
      */
     public function basePath()
@@ -321,7 +322,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the application configuration files.
+     * Get the path to the application configuration files.<br>
      * 返回项目根目录的 config 目录
      * 
      * @return string
@@ -332,8 +333,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the database directory.
-     * 如果设置了 $this->databasePath 则返回此目录
+     * Get the path to the database directory.<br>
+     * 如果设置了 $this->databasePath 则返回此目录<br>
      * 否则返回项目根目录的 database 目录
      * 
      * @return string
@@ -359,7 +360,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the language files.
+     * Get the path to the language files.<br>
      * 返回项目根目录的 resources/lang 目录
      * 
      * @return string
@@ -370,7 +371,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the public / web directory.
+     * Get the path to the public / web directory.<br>
      * 返回项目根目录的 public 目录
      *
      * @return string
@@ -381,8 +382,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the storage directory.
-     * 如果设置了 $this->storagePath 则返回此目录
+     * Get the path to the storage directory.<br>
+     * 如果设置了 $this->storagePath 则返回此目录<br>
      * 否则返回项目根目录的 storage 目录
      *
      * @return string
@@ -408,7 +409,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the environment file directory.
+     * Get the path to the environment file directory.<br>
      * 返回配置文件的目录，如果没设置则返回项目在操作系统中的绝对路径
      * 
      * @return string
@@ -419,7 +420,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Set the directory for the environment file.
+     * Set the directory for the environment file.<br>
      * 设置配置文件的目录 $this->environmentPath
      * 
      * @param  string  $path
@@ -433,7 +434,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Set the environment file to be loaded during bootstrapping.
+     * Set the environment file to be loaded during bootstrapping.<br>
      * 设置配置文件 $this->environmentFile 的名称，默认为 .env
      *
      * @param  string  $file
@@ -447,9 +448,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the environment file the application is using.
-     * 获取配置文件 $this->environmentFile 的名称
-     * 如果设置了 $this->environmentFile 则返回该变量保存的文件名
+     * Get the environment file the application is using.<br>
+     * 获取配置文件 $this->environmentFile 的名称<br>
+     * 如果设置了 $this->environmentFile 则返回该变量保存的文件名<br>
      * 否则返回默认值 .env
      *
      * @return string
@@ -506,7 +507,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if we are running in the console.
+     * Determine if we are running in the console.<br>
      * 检测程序是否运行在命令行下
      * 
      * @return bool
@@ -517,7 +518,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if we are running unit tests.
+     * Determine if we are running unit tests.<br>
      * 检测程序是否运行在单元测试下
      * 
      * @return bool
@@ -560,19 +561,24 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // If the given "provider" is a string, we will resolve it, passing in the
         // application instance automatically for the developer. This is simply
         // a more convenient way of specifying your service provider classes.
-        //如果 $provider 是字符串就执行 $provider = new $provider($this)
+        // 如果 $provider 是字符串就执行 $provider = new $provider($this)
         if (is_string($provider)) {
             $provider = $this->resolveProviderClass($provider);
         }
         
-        // 所有继承自 Illuminate\Support\ServiceProvider 接口的 provider 
-        // 都必须实现 register 方法;
+        // 所有继承自 Illuminate\Support\ServiceProvider 类的 service provider 
+        // 都必须实现 register 方法（父级类中是抽象方法）
+        // 通常 service provider 的 register 方法通过 Illuminate\Contracts\Container 类
+        // 中的 singleton, bind 或者 ArrayAccess 提供的方法绑定至容器的 $this->bindings
         $provider->register();
         
         // Once we have registered the service we will iterate through the options
         // and set each of them on the application so they will be available on
         // the actual loading of the service objects and for developer usage.
         foreach ($options as $key => $value) {
+            // 调用 ArrayAccess 提供的 offsetSet() 方法
+            // 如果 $value 不是 Closure，则被包装成仅返回值 $value 的一个匿名函数
+            // 最后绑定至 $this->bindings
             $this[$key] = $value;
         }
         
@@ -610,8 +616,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Resolve a service provider instance from the class name.
-     *
+     * Resolve a service provider instance from the class name.<br>
+     * 通过类名 $provider 得到一个实例对象，使用容器对象($this)作为构造函数唯一参数
+     * 
      * @param  string  $provider
      * @return \Illuminate\Support\ServiceProvider
      */
@@ -723,10 +730,10 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if the given abstract type has been bound.
-     * 检查在 $this->deferredServices 中是否设置了 $abstract 下标
-     * 也就说是否绑定了这个抽象事物（比如“狗”是描述一种四条退动物的抽象名词）
-     * 如果在 $this->deferredServices 查不到则从父级的
+     * Determine if the given abstract type has been bound.<br>
+     * 检查在 $this->deferredServices 中是否设置了 $abstract 下标<br>
+     * 也就说是否绑定了这个抽象事物（比如“狗”是描述一种四条退动物的抽象名词）<br>
+     * 如果在 $this->deferredServices 查不到则从父级的<br>
      * $this->bindings，$this->instances,$this->aliases 中查看是否已绑定
      *
      * (Overriding Container::bound)
@@ -788,7 +795,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Register a new boot listener.
+     * Register a new boot listener.<br>
      * 将 函数 $callback 放入 $this->bootingCallbacks 数组中
      * 
      * @param  mixed  $callback
@@ -815,7 +822,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Call the booting callbacks for the application.
+     * Call the booting callbacks for the application.<br>
      * 执行 $callbacks 数组中的函数，并将调用此方法的实例对象作为唯一参数传入函数
      *
      * @param  array  $callbacks
@@ -848,8 +855,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if the application configuration is cached.
-     * 查看 $this->basePath().'/bootstrap/cache/config.php' 文件是否存在
+     * Determine if the application configuration is cached.<br>
+     * 查看 $this->basePath().'/bootstrap/cache/config.php' 文件是否存在<br>
      * 调用 $this->getCachedConfigPath()
      * 
      * @return bool
@@ -860,7 +867,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the configuration cache file.
+     * Get the path to the configuration cache file.<br>
      * 返回项目根目录下的 bootstrap/cache/config.php 文件路径
      * 
      * @return string
@@ -871,7 +878,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if the application routes are cached.
+     * Determine if the application routes are cached.<br>
      * 查看 $this->basePath().'/bootstrap/cache/routes.php' 文件是否存在
      * 调用 $this->getCachedRoutesPath()
      *
@@ -883,7 +890,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the routes cache file.
+     * Get the path to the routes cache file.<br>
      * 返回项目根目录下的 bootstrap/cache/routes.php 文件路径
      *
      * @return string
@@ -894,7 +901,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the cached "compiled.php" file.
+     * Get the path to the cached "compiled.php" file.<br>
      * 返回项目根目录下的 bootstrap/cache/compiled.php 文件路径
      *
      * @return string
@@ -905,7 +912,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the path to the cached services.json file.
+     * Get the path to the cached services.json file.<br>
      * 返回项目根目录下的 bootstrap/cache/services.json 文件路径
      *
      * @return string
@@ -916,7 +923,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if the application is currently down for maintenance.
+     * Determine if the application is currently down for maintenance.<br>
      * 判断项目是否处于下线维护中
      * 
      * @return bool
@@ -946,7 +953,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Register a terminating callback with the application.
+     * Register a terminating callback with the application.<br>
      * 将函数 $callback 放入 $this->terminatingCallbacks 数组中
      * 
      * @param  \Closure  $callback
@@ -983,7 +990,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the application's deferred services.
+     * Get the application's deferred services.<br>
      * 返回 $this->deferredServices
      * 
      * @return array
@@ -994,7 +1001,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Set the application's deferred services.
+     * Set the application's deferred services.<br>
      * 设置（覆盖） $this->deferredServices 的值为一个数组
      *
      * @param  array  $services
@@ -1006,7 +1013,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Add an array of services to the application's deferred services.
+     * Add an array of services to the application's deferred services.<br>
      * 传入参数 $services 与现有的 $this->deferredServices 数组合并
      * 
      * @param  array  $services
@@ -1087,7 +1094,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Register the core class aliases in the container.
+     * Register the core class aliases in the container.<br>
      * 循环地将一些键值对存入 $this->aliases 中
      * 
      * @return void
@@ -1139,28 +1146,34 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Flush the container of all bindings and resolved instances.
-     * 执行了以下操作
-     * $this->aliases = [];
-     * $this->resolved = [];
-     * $this->bindings = [];
-     * $this->instances = [];
+     * Flush the container of all bindings and resolved instances.<br>
+     * 执行了以下操作<br>
+     * $this->aliases = [];<br>
+     * $this->resolved = [];<br>
+     * $this->bindings = [];<br>
+     * $this->instances = [];<br>
      * $this->loadedProviders = [];
      * 
      * @return void
      */
     public function flush()
     {
+        // 父级类 Container
+        // $this->aliases = [];
+        // $this->resolved = [];
+        // $this->bindings = [];
+        // $this->instances = [];
         parent::flush();
 
         $this->loadedProviders = [];
     }
 
     /**
-     * Get the used kernel object.
-     * 根据 php_sapi_name() == 'cli' 返回的结果去实例化对应的类
-     * 控制台核心类 Illuminate\Contracts\Console\Kernel 
-     * 或者HTTP核心类 Illuminate\Contracts\Http\Kernel
+     * Get the used kernel object.<br>
+     * 根据 php_sapi_name() == 'cli' 返回的结果<br>
+     * 使用 $this->make() 方法去实例化对应的类<br>
+     * 控制台核心类 Illuminate\Contracts\Console\Kernel <br>
+     * 或者HTTP核心类 Illuminate\Contracts\Http\Kernel<br>
      *
      * @return \Illuminate\Contracts\Console\Kernel|\Illuminate\Contracts\Http\Kernel
      */
