@@ -175,10 +175,11 @@ class Container implements ArrayAccess, ContainerContract
         // defined and will grab this "real" abstract class name and register this
         // alias with the container so that it can be used as a shortcut for it.
         
-        // 如果 $abstract 是数组，则实际执行 
-        // $abstract = key($abstract)
-        // $alias = current($abstract)
-        // $this->aliases[$alias] = $abstract;
+        // 如果 $abstract 是数组，则
+        // 提取第一个键作为 $abstract 的值
+        // 提取第一个值作为 $alias 的值
+        // 并且设置 $this->aliases[$alias] = $abstract
+        
         if (is_array($abstract)) {
             // $abstract = key($abstract)
             // $alias = current($abstract)
@@ -195,6 +196,9 @@ class Container implements ArrayAccess, ContainerContract
         $this->dropStaleInstances($abstract);
         
         // 如果 $concrete 为 NULL 使用 $abstract 代替
+        // $this->make() 中 $this->isBuildable() 的判断条件其中一项就是 $concrete === $abstract
+        // 这种情况在 $this->build() 中会利用反射获得依赖后返回以 $concrete 为类名的类实例对象
+        
         if (is_null($concrete)) {
             $concrete = $abstract;
         }
@@ -344,10 +348,12 @@ class Container implements ArrayAccess, ContainerContract
         // First, we will extract the alias from the abstract if it is an array so we
         // are using the correct name when binding the type. If we get an alias it
         // will be registered with the container so we can resolve it out later.
-        // 如果 $abstract 是数组，则实际执行 
-        // $abstract = key($abstract)
-        // $alias = current($abstract)
-        // $this->aliases[$alias] = $abstract;
+        
+        // 如果 $abstract 是数组，则
+        // 提取第一个键作为 $abstract 的值
+        // 提取第一个值作为 $alias 的值
+        // 并且设置 $this->aliases[$alias] = $abstract
+        
         if (is_array($abstract)) {
             // $abstract = key($abstract)
             // $alias = current($abstract)
@@ -355,7 +361,8 @@ class Container implements ArrayAccess, ContainerContract
             // $this->aliases[$alias] = $abstract;
             $this->alias($abstract, $alias);
         }
-
+        // 取消别名
+        // TODO：或许和避免 make() 中检查是否存在别名有关
         unset($this->aliases[$abstract]);
 
         // We'll check to determine if this type has been bound before, and if it has
@@ -526,15 +533,20 @@ class Container implements ArrayAccess, ContainerContract
         if ($this->isCallableWithAtSign($callback) || $defaultMethod) {
             return $this->callClass($callback, $parameters, $defaultMethod);
         }
-
+        
+        // 获取方法的依赖（包含根据方法的形参列表设置的依赖和当前方法的 $parameters 实参）
+        
         $dependencies = $this->getMethodDependencies($callback, $parameters);
-
+        
+        // 注入依赖并调用闭包或者类的方法，并返回调用结果
+        
         return call_user_func_array($callback, $dependencies);
     }
 
     /**
-     * Determine if the given string is in Class@method syntax.
-     *
+     * Determine if the given string is in Class@method syntax.<br>
+     * 判断 $callback 是否是字符串，且符合 Class@method 规则
+     * 
      * @param  mixed  $callback
      * @return bool
      */
@@ -557,22 +569,28 @@ class Container implements ArrayAccess, ContainerContract
     protected function getMethodDependencies($callback, array $parameters = [])
     {
         $dependencies = [];
-
+        
+        // 通过反射获得方法的形参，循环处理每一个形参
+        
         foreach ($this->getCallReflector($callback)->getParameters() as $key => $parameter) {
             $this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
         }
-
+        
+        // 合并依赖和调用 $this->call() 时传入的 $parameters 实参
+        
         return array_merge($dependencies, $parameters);
     }
 
     /**
      * Get the proper reflection instance for the given callback.
-     *
+     * 
      * @param  callable|string  $callback
      * @return \ReflectionFunctionAbstract
      */
     protected function getCallReflector($callback)
     {
+        // 静态方法字符串格式处理，class::method 分割为数组
+        
         if (is_string($callback) && strpos($callback, '::') !== false) {
             $callback = explode('::', $callback);
         }
@@ -585,7 +603,11 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     * Get the dependency for the given call parameter.
+     * Get the dependency for the given call parameter.<br>
+     * $parameters 和 $dependencies 形参是引用类型<br>
+     * 如果 $parameters 中含有形参名称的键则使用对应值作为一项依赖<br>
+     * 如果形参有类型提示，则 make 该类型实例，并作为一项依赖<br>
+     * 如果形参有默认值，则使用默认值作为一项依赖
      *
      * @param  \ReflectionParameter  $parameter
      * @param  array  $parameters
@@ -598,7 +620,7 @@ class Container implements ArrayAccess, ContainerContract
             $dependencies[] = $parameters[$parameter->name];
 
             unset($parameters[$parameter->name]);
-        } elseif ($parameter->getClass()) {
+        } elseif ($parameter->getClass()) { // 尝试获取该形参的类型提示
             $dependencies[] = $this->make($parameter->getClass()->name);
         } elseif ($parameter->isDefaultValueAvailable()) {
             $dependencies[] = $parameter->getDefaultValue();
@@ -607,6 +629,7 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Call a string reference to a class using Class@method syntax.
+     * 调用 Class@method 规则的方法
      *
      * @param  string  $target
      * @param  array  $parameters
@@ -638,15 +661,18 @@ class Container implements ArrayAccess, ContainerContract
      */
     public function make($abstract, array $parameters = [])
     {
+        // 尝试获取别名对应的真实抽象名，失败则返回 $abstract 原值
         // 实际执行 isset($this->aliases[$abstract]) ? $this->aliases[$abstract] : $abstract;
+        
         $abstract = $this->getAlias($abstract);
 
-        // If an instance of the type is currently being managed as a singleton we'll
-        // just return an existing instance instead of instantiating new instances
-        // so the developer can keep using the same objects instance every time.
+        // 单例控制
+        
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
+        
+        // $this->instances 未保存具体实现的单例，则根据抽象名获取对应的具体实现
         
         $concrete = $this->getConcrete($abstract);
 
@@ -654,7 +680,9 @@ class Container implements ArrayAccess, ContainerContract
         // the binding. This will instantiate the types, as well as resolve any of
         // its "nested" dependencies recursively until all have gotten resolved.
         
-        // $this->isBuildable 返回 $concrete === $abstract || $concrete instanceof Closure;
+        // $this->isBuildable 返回如下结果
+        // $concrete === $abstract || $concrete instanceof Closure;
+        
         if ($this->isBuildable($concrete, $abstract)) {
             $object = $this->build($concrete, $parameters);
         } else {
@@ -664,6 +692,7 @@ class Container implements ArrayAccess, ContainerContract
         // If we defined any extenders for this type, we'll need to spin through them
         // and apply them to the object being built. This allows for the extension
         // of services, such as changing configuration or decorating the object.
+        
         foreach ($this->getExtenders($abstract) as $extender) {
             $object = $extender($object, $this);
         }
@@ -671,6 +700,7 @@ class Container implements ArrayAccess, ContainerContract
         // If the requested type is registered as a singleton we'll want to cache off
         // the instances in "memory" so we can return it later without creating an
         // entirely new instance of an object on each subsequent request for it.
+        
         if ($this->isShared($abstract)) {
             $this->instances[$abstract] = $object;
         }
@@ -683,13 +713,16 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     * Get the concrete type for a given abstract.
+     * Get the concrete type for a given abstract.<br>
+     * 获得一个抽象的具体实现
      *
      * @param  string  $abstract
      * @return mixed   $concrete
      */
     protected function getConcrete($abstract)
     {
+        // 实际判断条件 
+        // ! is_null($concrete = $this->contextual[end($this->buildStack)][$abstract])
         if (! is_null($concrete = $this->getContextualConcrete($abstract))) {
             return $concrete;
         }
@@ -697,6 +730,12 @@ class Container implements ArrayAccess, ContainerContract
         // If we don't have a registered resolver or concrete for the type, we'll just
         // assume each type is a concrete name and will attempt to resolve it as is
         // since the container should be able to resolve concretes automatically.
+        
+        // 如果 $this->bindings 中不存在键 $abstract 对应的具体实现内容
+        // 就先看下 $abstract 是否是遗漏了打头的 "\"，加上后再检查键是否存在
+        // 存在的话 $abstract 就更新为 "\" 打头
+        // 返回处理（反斜杠打头）或没处理过的（原本就反斜杠打头）$abstract
+        
         if (! isset($this->bindings[$abstract])) {
             if ($this->missingLeadingSlash($abstract) &&
                 isset($this->bindings['\\'.$abstract])) {
@@ -705,7 +744,7 @@ class Container implements ArrayAccess, ContainerContract
 
             return $abstract;
         }
-
+        // 返回 $this->bindings 中键 $abstract 对应的具体实现内容
         return $this->bindings[$abstract]['concrete'];
     }
 
@@ -784,6 +823,9 @@ class Container implements ArrayAccess, ContainerContract
         // If there are no constructors, that means there are no dependencies then
         // we can just resolve the instances of the objects right away, without
         // resolving any other types or dependencies out of these containers.
+        
+        // 没有构造函数就直接 new 了，并且返回实例对象
+        
         if (is_null($constructor)) {
             array_pop($this->buildStack);
 
@@ -1216,8 +1258,8 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     * Unset the value at a given offset.
      * PHP 5 >= 5.0.0, PHP 7 实现的 ArrayAccess interface 中的方法
+     * unset($this->bindings[$key], $this->instances[$key], $this->resolved[$key])
      * 
      * @param  string  $key
      * @return void

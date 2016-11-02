@@ -20,6 +20,7 @@ use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
 class Application extends Container implements ApplicationContract, HttpKernelInterface
 {
+
     /**
      * The Laravel framework version.
      *
@@ -142,11 +143,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function __construct($basePath = null)
     {
         $this->registerBaseBindings();
-        
+
         $this->registerBaseServiceProviders();
-        
+
         $this->registerCoreContainerAliases();
-        
+
         if ($basePath) {
             $this->setBasePath($basePath);
         }
@@ -169,11 +170,14 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     protected function registerBaseBindings()
     {
+        // setInstance() 继承自 Container, 延迟静态绑定 
         // 实际执行 static::$instance = $this
         static::setInstance($this);
+        // instance() 继承自 Container
         // 实际执行 $this->instances['app'] = $this    
         $this->instance('app', $this);
-        // 实际执行 $this->instances['Illuminate\Container\Container'] = $this    
+        // instance() 继承自 Container
+        // 实际执行 $this->instances['Illuminate\Container\Container'] = $this
         $this->instance('Illuminate\Container\Container', $this);
     }
 
@@ -188,9 +192,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // 继承 Illuminate\Support\ServiceProvider
         // 在构造函数（继承自Illuminate\Support\ServiceProvider）中 $this->app 保存传入的 $this
         // 类 EventServiceProvider 中的 register 将使用到 $this->app 保存的容器对象，也就是这里传入构造函数的 $this; 
-        
+
         $this->register(new EventServiceProvider($this));
-        
+
         $this->register(new RoutingServiceProvider($this));
     }
 
@@ -205,11 +209,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->hasBeenBootstrapped = true;
 
         foreach ($bootstrappers as $bootstrapper) {
-            $this['events']->fire('bootstrapping: '.$bootstrapper, [$this]);
+            $this['events']->fire('bootstrapping: ' . $bootstrapper, [$this]);
 
             $this->make($bootstrapper)->bootstrap($this);
 
-            $this['events']->fire('bootstrapped: '.$bootstrapper, [$this]);
+            $this['events']->fire('bootstrapped: ' . $bootstrapper, [$this]);
         }
     }
 
@@ -222,7 +226,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function afterLoadingEnvironment(Closure $callback)
     {
         return $this->afterBootstrapping(
-            'Illuminate\Foundation\Bootstrap\DetectEnvironment', $callback
+                        'Illuminate\Foundation\Bootstrap\DetectEnvironment', $callback
         );
     }
 
@@ -235,7 +239,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function beforeBootstrapping($bootstrapper, Closure $callback)
     {
-        $this['events']->listen('bootstrapping: '.$bootstrapper, $callback);
+        $this['events']->listen('bootstrapping: ' . $bootstrapper, $callback);
     }
 
     /**
@@ -247,7 +251,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function afterBootstrapping($bootstrapper, Closure $callback)
     {
-        $this['events']->listen('bootstrapped: '.$bootstrapper, $callback);
+        $this['events']->listen('bootstrapped: ' . $bootstrapper, $callback);
     }
 
     /**
@@ -271,7 +275,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function setBasePath($basePath)
     {
         $this->basePath = rtrim($basePath, '\/');
-        
+
         $this->bindPathsInContainer();
 
         return $this;
@@ -287,7 +291,6 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         // $this->instances['path'] = $this->path();
         $this->instance('path', $this->path());
-        
         // $this->instances['path.base'] = $this->basePath();
         // $this->instances['path.config'] = $this->configPath();
         // $this->instances['path.database'] = $this->databasePath();
@@ -295,7 +298,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // $this->instances['path.public'] = $this->publicPath();
         // $this->instances['path.storage'] = $this->storagePath();
         foreach (['base', 'config', 'database', 'lang', 'public', 'storage'] as $path) {
-            $this->instance('path.'.$path, $this->{$path.'Path'}());
+            $this->instance('path.' . $path, $this->{$path . 'Path'}());
         }
     }
 
@@ -307,7 +310,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function path()
     {
-        return $this->basePath.DIRECTORY_SEPARATOR.'app';
+        return $this->basePath . DIRECTORY_SEPARATOR . 'app';
     }
 
     /**
@@ -329,7 +332,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function configPath()
     {
-        return $this->basePath.DIRECTORY_SEPARATOR.'config';
+        return $this->basePath . DIRECTORY_SEPARATOR . 'config';
     }
 
     /**
@@ -341,7 +344,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function databasePath()
     {
-        return $this->databasePath ?: $this->basePath.DIRECTORY_SEPARATOR.'database';
+        return $this->databasePath ? : $this->basePath . DIRECTORY_SEPARATOR . 'database';
     }
 
     /**
@@ -367,7 +370,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function langPath()
     {
-        return $this->basePath.DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR.'lang';
+        return $this->basePath . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'lang';
     }
 
     /**
@@ -378,7 +381,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function publicPath()
     {
-        return $this->basePath.DIRECTORY_SEPARATOR.'public';
+        return $this->basePath . DIRECTORY_SEPARATOR . 'public';
     }
 
     /**
@@ -390,7 +393,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function storagePath()
     {
-        return $this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage';
+        return $this->storagePath ? : $this->basePath . DIRECTORY_SEPARATOR . 'storage';
     }
 
     /**
@@ -416,7 +419,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function environmentPath()
     {
-        return $this->environmentPath ?: $this->basePath;
+        return $this->environmentPath ? : $this->basePath;
     }
 
     /**
@@ -457,7 +460,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function environmentFile()
     {
-        return $this->environmentFile ?: '.env';
+        return $this->environmentFile ? : '.env';
     }
 
     /**
@@ -507,7 +510,6 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if we are running in the console.<br>
      * 检测程序是否运行在命令行下
      * 
      * @return bool
@@ -518,7 +520,6 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if we are running unit tests.<br>
      * 检测程序是否运行在单元测试下
      * 
      * @return bool
@@ -538,7 +539,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $manifestPath = $this->getCachedServicesPath();
 
         (new ProviderRepository($this, new Filesystem, $manifestPath))
-                    ->load($this->config['app.providers']);
+                ->load($this->config['app.providers']);
     }
 
     /**
@@ -553,28 +554,31 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         // 根据 $provider（可以是类名或者是实例对象）去 $this->serviceProviders
         // 中寻找属于 $provider 一类的或者子类的 provider （使用 instanceof 判断）
-        // 在 $force = false 的情况下返回找到的 provider，不再继续执行
-        if (($registered = $this->getProvider($provider)) && ! $force) {
+        // 找到 provider 对象且 $force = false 的情况下返回找到的 provider，不再继续执行
+
+        if (($registered = $this->getProvider($provider)) && !$force) {
             return $registered;
         }
 
-        // If the given "provider" is a string, we will resolve it, passing in the
-        // application instance automatically for the developer. This is simply
-        // a more convenient way of specifying your service provider classes.
         // 如果 $provider 是字符串就执行 $provider = new $provider($this)
+        // 类似于 new EventServiceProvider($this)
+        // 解析过后得到的对象就是当前 register() 的 $provider 参数期望的值
+
         if (is_string($provider)) {
             $provider = $this->resolveProviderClass($provider);
         }
-        
-        // 所有继承自 Illuminate\Support\ServiceProvider 类的 service provider 
+
+        // 所有继承自 Illuminate\Support\ServiceProvider 类的 service provider
         // 都必须实现 register 方法（父级类中是抽象方法）
         // 通常 service provider 的 register 方法通过 Illuminate\Contracts\Container 类
         // 中的 singleton, bind 或者 ArrayAccess 提供的方法绑定至容器的 $this->bindings
+
         $provider->register();
         
         // Once we have registered the service we will iterate through the options
         // and set each of them on the application so they will be available on
         // the actual loading of the service objects and for developer usage.
+
         foreach ($options as $key => $value) {
             // 调用 ArrayAccess 提供的 offsetSet() 方法
             // 如果 $value 不是 Closure，则被包装成仅返回值 $value 的一个匿名函数
@@ -582,14 +586,18 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
             $this[$key] = $value;
         }
         
-        // $class = get_class($provider);
-        // 执行 $this->serviceProviders[] = $provider;
-        // 执行 $this->loadedProviders[$class] = true; 
+        // 执行 $this['events']->fire($class = get_class($provider), [$provider])
+        // 执行 $this->serviceProviders[] = $provider
+        // 执行 $this->loadedProviders[get_class($provider)] = true
+
         $this->markAsRegistered($provider);
 
         // If the application has already booted, we will call this boot method on
         // the provider class so it has an opportunity to do its boot logic and
         // will be ready for any usage by the developer's application logics.
+        
+        // 当容器启动后，就可以调用服务的启动脚本以便随时可以使用
+
         if ($this->booted) {
             $this->bootProvider($provider);
         }
@@ -598,7 +606,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the registered service provider instance if it exists.
+     * Get the registered service provider instance if it exists.<br>
+     * 根据 $provider 从 $this->serviceProviders 中获取 service provider 对象
      *
      * @param  \Illuminate\Support\ServiceProvider|string  $provider
      * @return \Illuminate\Support\ServiceProvider|null
@@ -607,12 +616,13 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         //传入的可能是类名或者实例对象，实例对象就取它的类名
         $name = is_string($provider) ? $provider : get_class($provider);
-        //如果 $this->serviceProviders 中存在一个值是 $name 的实例对象，
+        // Arr = Illuminate\Support\Arr
+        //如果 $this->serviceProviders 中存在一个值是 $name 的实例对象(可以是子类)，
         //则返回该对象（只返回第一个匹配上的）
         //无法找到则返回 NULL
         return Arr::first($this->serviceProviders, function ($key, $value) use ($name) {
-            return $value instanceof $name;
-        });
+                    return $value instanceof $name;
+                });
     }
 
     /**
@@ -670,7 +680,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function loadDeferredProvider($service)
     {
-        if (! isset($this->deferredServices[$service])) {
+        if (!isset($this->deferredServices[$service])) {
             return;
         }
 
@@ -679,7 +689,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // If the service provider has not already been loaded and registered we can
         // register it with the application and remove the service from this list
         // of deferred services, since it will already be loaded on subsequent.
-        if (! isset($this->loadedProviders[$provider])) {
+        if (!isset($this->loadedProviders[$provider])) {
             $this->registerDeferredProvider($provider, $service);
         }
     }
@@ -702,7 +712,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
         $this->register($instance = new $provider($this));
 
-        if (! $this->booted) {
+        if (!$this->booted) {
             $this->booting(function () use ($instance) {
                 $this->bootProvider($instance);
             });
@@ -851,7 +861,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function shouldSkipMiddleware()
     {
         return $this->bound('middleware.disable') &&
-               $this->make('middleware.disable') === true;
+                $this->make('middleware.disable') === true;
     }
 
     /**
@@ -874,7 +884,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function getCachedConfigPath()
     {
-        return $this->basePath().'/bootstrap/cache/config.php';
+        return $this->basePath() . '/bootstrap/cache/config.php';
     }
 
     /**
@@ -897,7 +907,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function getCachedRoutesPath()
     {
-        return $this->basePath().'/bootstrap/cache/routes.php';
+        return $this->basePath() . '/bootstrap/cache/routes.php';
     }
 
     /**
@@ -908,7 +918,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function getCachedCompilePath()
     {
-        return $this->basePath().'/bootstrap/cache/compiled.php';
+        return $this->basePath() . '/bootstrap/cache/compiled.php';
     }
 
     /**
@@ -919,7 +929,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function getCachedServicesPath()
     {
-        return $this->basePath().'/bootstrap/cache/services.json';
+        return $this->basePath() . '/bootstrap/cache/services.json';
     }
 
     /**
@@ -930,7 +940,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function isDownForMaintenance()
     {
-        return file_exists($this->storagePath().'/framework/down');
+        return file_exists($this->storagePath() . '/framework/down');
     }
 
     /**
@@ -1055,7 +1065,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function hasMonologConfigurator()
     {
-        return ! is_null($this->monologConfigurator);
+        return !is_null($this->monologConfigurator);
     }
 
     /**
@@ -1169,7 +1179,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get the used kernel object.<br>
+     * 获取当前正在使用的内核对象<br>
      * 根据 php_sapi_name() == 'cli' 返回的结果<br>
      * 使用 $this->make() 方法去实例化对应的类<br>
      * 控制台核心类 Illuminate\Contracts\Console\Kernel <br>
@@ -1195,7 +1205,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function getNamespace()
     {
-        if (! is_null($this->namespace)) {
+        if (!is_null($this->namespace)) {
             return $this->namespace;
         }
         //读取项目根目录的 composer.json 并解成一个数组
@@ -1203,7 +1213,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
         foreach ((array) data_get($composer, 'autoload.psr-4') as $namespace => $path) {
             foreach ((array) $path as $pathChoice) {
-                if (realpath(app_path()) == realpath(base_path().'/'.$pathChoice)) {
+                if (realpath(app_path()) == realpath(base_path() . '/' . $pathChoice)) {
                     return $this->namespace = $namespace;
                 }
             }
@@ -1211,4 +1221,5 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
         throw new RuntimeException('Unable to detect application namespace.');
     }
+
 }
