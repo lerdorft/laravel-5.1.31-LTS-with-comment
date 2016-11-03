@@ -48,6 +48,8 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 |
 */
 
+// 得到的是 App\Http\Kernel 的实例对象
+
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 $response = $kernel->handle(

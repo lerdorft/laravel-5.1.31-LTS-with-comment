@@ -574,29 +574,30 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // 中的 singleton, bind 或者 ArrayAccess 提供的方法绑定至容器的 $this->bindings
 
         $provider->register();
-        
+
         // Once we have registered the service we will iterate through the options
         // and set each of them on the application so they will be available on
         // the actual loading of the service objects and for developer usage.
 
         foreach ($options as $key => $value) {
             // 调用 ArrayAccess 提供的 offsetSet() 方法
-            // 如果 $value 不是 Closure，则被包装成仅返回值 $value 的一个匿名函数
-            // 最后绑定至 $this->bindings
+            // 如果 $value 不是 Closure，则被包装成仅返回 $value 的一个闭包函数
+            // 最后调用 $this->bind($key, $value) 绑定至 $this->bindings
             $this[$key] = $value;
         }
-        
-        // 执行 $this['events']->fire($class = get_class($provider), [$provider])
-        // 执行 $this->serviceProviders[] = $provider
-        // 执行 $this->loadedProviders[get_class($provider)] = true
 
+        // 执行 $this->make('events')->fire($class = get_class($provider), [$provider])
+        // 执行 $this->serviceProviders[] = $provider
+        // 加入 $this->serviceProviders 后即可防止重复注册服务
+        // 执行 $this->loadedProviders[get_class($provider)] = true
+        
         $this->markAsRegistered($provider);
 
         // If the application has already booted, we will call this boot method on
         // the provider class so it has an opportunity to do its boot logic and
         // will be ready for any usage by the developer's application logics.
-        
-        // 当容器启动后，就可以调用服务的启动脚本以便随时可以使用
+        // 当应用启动后（Illuminate\Foundation\Bootstrap\BootProviders 中启动）
+        // 就可以调用服务的启动脚本以便随时可以使用
 
         if ($this->booted) {
             $this->bootProvider($provider);
@@ -792,7 +793,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Boot the given service provider.
+     * 启动服务（运行服务对象的 boot 方法）
      *
      * @param  \Illuminate\Support\ServiceProvider  $provider
      * @return mixed
@@ -1189,9 +1190,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     protected function getKernel()
     {
-        $kernelContract = $this->runningInConsole()
-                    ? 'Illuminate\Contracts\Console\Kernel'
-                    : 'Illuminate\Contracts\Http\Kernel';
+        $kernelContract = $this->runningInConsole() ? 'Illuminate\Contracts\Console\Kernel' : 'Illuminate\Contracts\Http\Kernel';
 
         return $this->make($kernelContract);
     }
