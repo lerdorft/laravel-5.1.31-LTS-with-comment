@@ -209,7 +209,7 @@ class Container implements ArrayAccess, ContainerContract
         // If the factory is not a Closure, it means it is just a class name which is
         // bound into this container to the abstract type and we will just wrap it
         // up inside its own Closure to give us more convenience when extending.
-        // $concrete 不是一个函数的话需要包装一下
+        // $concrete 不是一个闭包函数的话需要包装一下
 
         if (!$concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
@@ -220,6 +220,7 @@ class Container implements ArrayAccess, ContainerContract
         // If the abstract type was already resolved in this container we'll fire the
         // rebound listener so that any objects which have already gotten resolved
         // can have their copy of the object updated via the listener callbacks.
+        // 如果在 $this->make() 中解析过该抽象则重新绑定一下
         // return isset($this->resolved[$abstract]) || isset($this->instances[$abstract])
 
         if ($this->resolved($abstract)) {
