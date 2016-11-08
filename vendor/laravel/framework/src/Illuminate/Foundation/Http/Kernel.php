@@ -113,7 +113,11 @@ class Kernel implements KernelContract
         $this->app->instance('request', $request);
 
         Facade::clearResolvedInstance('request');
-
+        
+        // 实例化 $this->bootstrappers 数组中的启动器
+        // 调用实例对象的 bootstrap() 方法
+        // 并触发每个启动器的 bootstrapping 和 bootstrapped 事件
+        
         $this->bootstrap();
 
         return (new Pipeline($this->app))
