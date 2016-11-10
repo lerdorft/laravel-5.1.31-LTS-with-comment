@@ -313,11 +313,15 @@ if (! function_exists('env')) {
     function env($key, $default = null)
     {
         $value = getenv($key);
-
+        
+        // 环境变量不存在则返回默认值
+        
         if ($value === false) {
             return value($default);
         }
-
+        
+        // 根据值是特定字符串的 $value, 返回特定的值
+        
         switch (strtolower($value)) {
             case 'true':
             case '(true)':
@@ -335,7 +339,9 @@ if (! function_exists('env')) {
             case '(null)':
                 return;
         }
-
+        
+        // 如果字符串被包含在一对双引号之间，则返回去掉这对双引号后的值
+        
         if (strlen($value) > 1 && Str::startsWith($value, '"') && Str::endsWith($value, '"')) {
             return substr($value, 1, -1);
         }

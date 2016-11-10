@@ -15,7 +15,7 @@ class Dotenv
     protected static $immutable = true;
 
     /**
-     * Load `.env` file in given directory.
+     * 加载目录 $path 下的环境配置文件 $file（默认为根目录的 .env）
      *
      * @param string $path
      * @param string $file
@@ -59,13 +59,7 @@ class Dotenv
     }
 
     /**
-     * Set a variable.
-     *
-     * Variable set using:
-     * - putenv
-     * - $_ENV
-     * - $_SERVER.
-     *
+     * 通过或向 putenv(), $_ENV, $_SERVER 设置环境变量
      * The environment variable value is stripped of single and double quotes.
      *
      * @param string      $name
@@ -75,14 +69,21 @@ class Dotenv
      */
     public static function setEnvironmentVariable($name, $value = null)
     {
+        // 分解出环境变量的名称（$name）和值（$value）
+        // 并将它们消消毒（过滤，去除一些字符串等）后方可使用
+        
         list($name, $value) = static::normaliseEnvironmentVariable($name, $value);
 
         // Don't overwrite existing environment variables if we're immutable
         // Ruby's dotenv does this with `ENV[key] ||= value`.
+        // 如果设置了环境变量不可变，而且该环境变量已存在于配置中，则无法设置并直接返回
+        
         if (static::$immutable === true && !is_null(static::findEnvironmentVariable($name))) {
             return;
         }
-
+        
+        // 设置环境变量
+        
         putenv("$name=$value");
         $_ENV[$name] = $value;
         $_SERVER[$name] = $value;
@@ -154,7 +155,9 @@ class Dotenv
     }
 
     /**
-     * If the $name contains an = sign, then we split it into 2 parts, a name & value.
+     * 如果 $name 包含字符 =，则分割 $name 为2部分，每部分使用 trim() 函数去除左右空白<br>
+     * 第一部分为 $name，第二部分为$ value<br>
+     * 返回格式：array($name, $value)
      *
      * @param string $name
      * @param string $value
@@ -209,8 +212,8 @@ class Dotenv
     }
 
     /**
-     * Strips quotes and the optional leading "export " from the environment variable name.
-     *
+     * 去除环境变量名 $name 中的引号以及 "export "
+     * 
      * @param string $name
      *
      * @return string
@@ -250,8 +253,9 @@ class Dotenv
     }
 
     /**
-     * Search the different places for environment variables and return first value found.
-     *
+     * 按照顺序从或通过 $_ENV, $_SERVER, getenv() 寻找环境变量 $name<br>
+     * 找到即返回，不再继续寻找
+     * 
      * @param string $name
      *
      * @return string
@@ -270,9 +274,7 @@ class Dotenv
     }
 
     /**
-     * Check Dotenv immutable status.
-     *
-     * Returns true if immutable, false if mutable.
+     * 判断环境变量是否可改变
      *
      * @return bool
      */
@@ -282,9 +284,8 @@ class Dotenv
     }
 
     /**
-     * Make Dotenv immutable.
-     *
-     * This means that once set, an environment variable cannot be overridden.
+     * 设置已经设置的环境变量不可改变<br>
+     * “已经设置的”不再此函数中体现，而是调用此函数的地方体现
      *
      * @return void
      */
@@ -294,9 +295,7 @@ class Dotenv
     }
 
     /**
-     * Make Dotenv mutable.
-     *
-     * Environment variables will act as, well, variables.
+     * 设置环境变量可以改变
      *
      * @return void
      */

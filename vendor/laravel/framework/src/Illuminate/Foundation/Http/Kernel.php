@@ -67,14 +67,16 @@ class Kernel implements KernelContract
     {
         $this->app = $app;
         $this->router = $router;
-
+        
+        // $router->middleware[$key] = $middleware;
+        
         foreach ($this->routeMiddleware as $key => $middleware) {
             $router->middleware($key, $middleware);
         }
     }
 
     /**
-     * Handle an incoming HTTP request.
+     * 处理 HTTP 请求
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -114,12 +116,12 @@ class Kernel implements KernelContract
 
         Facade::clearResolvedInstance('request');
         
-        // 实例化 $this->bootstrappers 数组中的启动器
-        // 调用实例对象的 bootstrap() 方法
-        // 并触发每个启动器的 bootstrapping 和 bootstrapped 事件
+        // 启动一些启动器，诸如异常处理，配置，日志，Facade，运行环境监测等
         
         $this->bootstrap();
-
+        
+        // 管道方式执行中间件，然后路由分发
+        
         return (new Pipeline($this->app))
                     ->send($request)
                     ->through($this->app->shouldSkipMiddleware() ? [] : $this->middleware)
@@ -139,6 +141,8 @@ class Kernel implements KernelContract
             $this->gatherRouteMiddlewares($request),
             $this->middleware
         );
+        
+        // 调用 $middlewares 中每个中间件的 terminate() 方法
 
         foreach ($middlewares as $middleware) {
             list($name, $parameters) = $this->parseMiddleware($middleware);
@@ -149,7 +153,10 @@ class Kernel implements KernelContract
                 $instance->terminate($request, $response);
             }
         }
-
+        
+        // 调用容器的 terminate() 方法
+        // 该方法中会调用 $this->app->terminatingCallbacks 中记录的类的方法
+        
         $this->app->terminate();
     }
 
@@ -169,24 +176,36 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Parse a middleware string to get the name and parameters.
-     *
+     * 解析一个中间件字符串，从而获得中间件名称和中间件参数<br>
+     * 返回的数据格式：["name", ["param1", "param2"]]
+     * 
      * @param  string  $middleware
      * @return array
      */
     protected function parseMiddleware($middleware)
     {
+        // 用:分割 $middleware，最多分割成2段
+        // 不足2段则用空数组（$parameters 也就为空数组了）补齐，
+        // 换句话说这里用这种方式设置了 $parameters 的默认值为空数组 
+        
         list($name, $parameters) = array_pad(explode(':', $middleware, 2), 2, []);
-
+        
+        // 当 $middleware 无法分割成2段时 $parameters 就是空数组
+        // 反之则是字符串，这里再将字符串 $parameters 分割成数组
+        
         if (is_string($parameters)) {
             $parameters = explode(',', $parameters);
         }
-
+        
+        // 返回的数据格式：["name", ["param1", "param2"]]
+        
         return [$name, $parameters];
     }
 
     /**
-     * Add a new middleware to beginning of the stack if it does not already exist.
+     * 向 $this->middleware 数组开头添加一个中间件字符串（如果不存在）<br>
+     * 字符串格式： A\B\MiddleWare:param1,param2<br>
+     * 格式中:右侧为参数，可选（目前为止没发现有什么卵用）
      *
      * @param  string  $middleware
      * @return $this
@@ -201,7 +220,9 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Add a new middleware to end of the stack if it does not already exist.
+     * 向 $this->middleware 数组末尾添加一个中间件名称（如果不存在）<br>
+     * 字符串格式： A\B\MiddleWare:param1,param2<br>
+     * 格式中:右侧为参数，可选（目前为止没发现有什么卵用）
      *
      * @param  string  $middleware
      * @return $this
@@ -216,7 +237,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Bootstrap the application for HTTP requests.
+     * 调用 $this->app->bootstrapWith() 运行 $this->bootstrappers 中记录的启动程序
      *
      * @return void
      */
@@ -228,7 +249,9 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Get the route dispatcher callback.
+     * Get the route dispatcher callback.<br>
+     * 当请求经过管道功能执行中间件过后，下一步就是进入路由<br>
+     * 该函数就是路由入口
      *
      * @return \Closure
      */
@@ -242,7 +265,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Determine if the kernel has a given middleware.
+     * 判断 $this->middleware 数组中是否有某个中间件名称
      *
      * @param  string  $middleware
      * @return bool
@@ -253,7 +276,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Get the bootstrap classes for the application.
+     * 返回 $this->bootstrappers 中记录的启动器名称
      *
      * @return array
      */
@@ -286,7 +309,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Get the Laravel application instance.
+     * 获取容器实例对象
      *
      * @return \Illuminate\Contracts\Foundation\Application
      */

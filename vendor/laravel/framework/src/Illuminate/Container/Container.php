@@ -229,7 +229,7 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     * Get the Closure to be used when building a type.
+     * 包装 $concrete 成为一个闭包函数
      *
      * @param  string  $abstract
      * @param  string  $concrete
