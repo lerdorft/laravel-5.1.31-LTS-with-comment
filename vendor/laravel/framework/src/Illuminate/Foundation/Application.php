@@ -466,7 +466,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get or check the current application environment.
+     * 获取或者确认系统当前运行环境
      *
      * @param  mixed
      * @return string
