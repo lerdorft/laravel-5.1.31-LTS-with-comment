@@ -537,7 +537,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function registerConfiguredProviders()
     {
         $manifestPath = $this->getCachedServicesPath();
-
+     
         (new ProviderRepository($this, new Filesystem, $manifestPath))
                 ->load($this->config['app.providers']);
     }
@@ -596,8 +596,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // If the application has already booted, we will call this boot method on
         // the provider class so it has an opportunity to do its boot logic and
         // will be ready for any usage by the developer's application logics.
-        // 当应用启动后（Illuminate\Foundation\Bootstrap\BootProviders 中启动）
-        // 就可以调用服务的启动脚本以便随时可以使用
+        // 当系统已经启动后（这里的 $this->booted 为 true，Illuminate\Foundation\Bootstrap\BootProviders 中启动）
+        // 再注册的新服务，该服务实例对象的 boot() 方法会被调用
 
         if ($this->booted) {
             $this->bootProvider($provider);
@@ -743,7 +743,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * Determine if the given abstract type has been bound.<br>
      * 检查在 $this->deferredServices 中是否设置了 $abstract 下标<br>
-     * 也就说是否绑定了这个抽象事物（比如“狗”是描述一种四条退动物的抽象名词）<br>
+     * 也就说是否绑定了这个抽象事物（比如“狗”是描述一种四条腿动物的抽象名词）<br>
      * 如果在 $this->deferredServices 查不到则从父级的<br>
      * $this->bindings，$this->instances,$this->aliases 中查看是否已绑定
      *
@@ -768,12 +768,15 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Boot the application's service providers.
-     *
+     * Boot the application's service providers.<br> 
+     * Illuminate\Foundation\Bootstrap\BootProviders 中会调用此方法
+     * 
      * @return void
      */
     public function boot()
     {
+        // 不重复启动
+        
         if ($this->booted) {
             return;
         }
@@ -782,11 +785,16 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // for any listeners that need to do work after this initial booting gets
         // finished. This is useful when ordering the boot-up processes we run.
         $this->fireAppCallbacks($this->bootingCallbacks);
-
+        
+        // 通过 $this->register() 注册的服务（服务实例对象会被放入 $this->serviceProviders）
+        // 在系统启动后会在此，被通过调用服务实例对象的 boot() 方法启动
+        
         array_walk($this->serviceProviders, function ($p) {
             $this->bootProvider($p);
         });
-
+        
+        // 标记系统为已启动，防止重复启动
+        
         $this->booted = true;
 
         $this->fireAppCallbacks($this->bootedCallbacks);

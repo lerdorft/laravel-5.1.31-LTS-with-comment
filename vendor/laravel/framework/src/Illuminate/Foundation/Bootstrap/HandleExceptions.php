@@ -27,15 +27,19 @@ class HandleExceptions
     public function bootstrap(Application $app)
     {
         $this->app = $app;
-
+        
         error_reporting(-1);
-
+        
+        // 注册异常处理相关函数
+        
         set_error_handler([$this, 'handleError']);
 
         set_exception_handler([$this, 'handleException']);
 
         register_shutdown_function([$this, 'handleShutdown']);
-
+        
+        // 如果不是 testing 环境则不显示错误
+        
         if (! $app->environment('testing')) {
             ini_set('display_errors', 'Off');
         }

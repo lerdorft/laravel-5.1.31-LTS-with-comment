@@ -21,7 +21,9 @@ class DetectEnvironment
         } catch (InvalidArgumentException $e) {
             //
         }
-
+        
+        // 设置容器的 $this['env'] 值，默认为 production
+        
         $app->detectEnvironment(function () {
             return env('APP_ENV', 'production');
         });

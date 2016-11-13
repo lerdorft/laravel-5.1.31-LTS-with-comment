@@ -41,17 +41,25 @@ class Dotenv
         }
 
         // Read file into an array of lines with auto-detected line endings
+        // 这里读取 auto_detect_line_endings 后保存在变量中是为了不确定原有
+        // auto_detect_line_endings 值的情况时保证不改变它
+        
         $autodetect = ini_get('auto_detect_line_endings');
         ini_set('auto_detect_line_endings', '1');
         $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        
+        // 读取配置文件的行以后将变量重新设置回去
+        
         ini_set('auto_detect_line_endings', $autodetect);
 
         foreach ($lines as $line) {
             // Disregard comments
+            // 忽略注释掉的行
             if (strpos(trim($line), '#') === 0) {
                 continue;
             }
             // Only use non-empty lines that look like setters
+            // 当行的内容格式是赋值表达式，例如 a = 1 时才处理
             if (strpos($line, '=') !== false) {
                 static::setEnvironmentVariable($line);
             }
