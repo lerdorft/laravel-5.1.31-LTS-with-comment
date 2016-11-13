@@ -94,10 +94,61 @@ class Pipeline implements PipelineContract
      */
     public function then(Closure $destination)
     {
+        
+        // 当经过 App\Http\Kernel::$middleware 执行后最后执行 $firstSlice 闭包函数
+        // $firstSlice 即 Illuminate\Foundation\Http\Kernel::dispatchToRouter() 返回的闭包函数
+        // $firstSlice 在 Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::handle() 中被调用
+        // 该函数的作用是路由
+        
         $firstSlice = $this->getInitialSlice($destination);
-
+        
+        // 反转 middleware 数组，利用 array_reduce() 控制 middleware 之间的栈调用的顺序
+        
         $pipes = array_reverse($this->pipes);
-
+        
+        // array_reduce() 最后返回的是一个 Closure, 该闭包函数的原型如下：
+        // function($passable) use ($stack, $pipe)
+        // $stack： $pipes 中，当前 middleware 的上一个元素（middleware）产生的闭包函数
+        // $pipe： 当前 middleware 的类名
+        // 最后返回的是一个 Closure 结构如下：
+        // 
+        // function($passable) use (
+        //     $stack: function($passable) use (
+        //         $stack: function($passable) use (
+        //             $stack: function($passable) use (
+        //                 $stack: function($passable) use (
+        //                     $stack: function($passable) use (
+        //                         $stack: $firstSlice,
+        //                         $pipe: '\App\Http\Middleware\VerifyCsrfToken'
+        //                     ) {
+        //                         $stack($passable);
+        //                     },
+        //                     $pipe: '\Illuminate\View\Middleware\ShareErrorsFromSession'
+        //                 ) {
+        //                     $stack($passable);
+        //                 },
+        //                 $pipe: '\Illuminate\Session\Middleware\StartSession'
+        //             ) {
+        //                 $stack($passable);
+        //             },
+        //             $pipe: '\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse'
+        //         ) {
+        //             $stack($passable);
+        //         },
+        //         $pipe: '\App\Http\Middleware\EncryptCookies'
+        //     ) {
+        //         $stack($passable);
+        //     },
+        //     $pipe: '\Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode'
+        // ) {
+        //     $stack($passable);
+        // }
+        // 
+        // 通过 middleware 的 handle() 类中的类似代码：
+        // $next($request);
+        // 也就是上面的 $stack($passable);
+        // 实现 middleware 之间的栈调用
+        
         return call_user_func(
             array_reduce($pipes, $this->getSlice(), $firstSlice), $this->passable
         );

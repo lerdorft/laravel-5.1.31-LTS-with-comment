@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class EnvironmentDetector
 {
     /**
-     * Detect the application's current environment.
+     * 检测系统当前运行的环境
      *
      * @param  \Closure  $callback
      * @param  array|null  $consoleArgs
@@ -17,10 +17,14 @@ class EnvironmentDetector
      */
     public function detect(Closure $callback, $consoleArgs = null)
     {
+        // 如果带有 CLI 执行方式的参数则控制台检测方式
+        
         if ($consoleArgs) {
             return $this->detectConsoleEnvironment($callback, $consoleArgs);
         }
 
+        // 默认按照 WEB 检测方式
+        
         return $this->detectWebEnvironment($callback);
     }
 

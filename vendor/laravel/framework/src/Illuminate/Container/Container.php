@@ -209,7 +209,7 @@ class Container implements ArrayAccess, ContainerContract
         // If the factory is not a Closure, it means it is just a class name which is
         // bound into this container to the abstract type and we will just wrap it
         // up inside its own Closure to give us more convenience when extending.
-        // $concrete 不是一个函数的话需要包装一下
+        // $concrete 不是一个闭包函数的话需要包装一下
 
         if (!$concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
@@ -220,6 +220,7 @@ class Container implements ArrayAccess, ContainerContract
         // If the abstract type was already resolved in this container we'll fire the
         // rebound listener so that any objects which have already gotten resolved
         // can have their copy of the object updated via the listener callbacks.
+        // 如果在 $this->make() 中解析过该抽象则重新绑定一下
         // return isset($this->resolved[$abstract]) || isset($this->instances[$abstract])
 
         if ($this->resolved($abstract)) {
@@ -228,7 +229,7 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     * Get the Closure to be used when building a type.
+     * 包装 $concrete 成为一个闭包函数
      *
      * @param  string  $abstract
      * @param  string  $concrete
@@ -966,8 +967,10 @@ class Container implements ArrayAccess, ContainerContract
     /**
      * If extra parameters are passed by numeric ID, rekey them by argument name.<br>
      * 将 $parameters 中的数字键改用 $dependencies 中对应数字键的值的 name 属性替换<br>
-     * $dependencies 是 ReflectionParameter 对象数组，结构如下：<br>
-     * Array ( [0] => ReflectionParameter Object ( [name] => a ) )
+     * 假设 $dependencies 和 $parameters 分别为：
+     * $dependencies: Array ( [0] => ReflectionParameter Object ( [name] => abc ) )
+     * $parameters: Array ( [0] => new_name )
+     * 处理后 $parameters： Array ( [abc] => new_name )
      * 
      * @param  array  $dependencies
      * @param  array  $parameters
@@ -975,11 +978,6 @@ class Container implements ArrayAccess, ContainerContract
      */
     protected function keyParametersByArgument(array $dependencies, array $parameters)
     {
-        // 假设 $dependencies 和 $parameters 分别为：
-        // $dependencies: Array ( [0] => ReflectionParameter Object ( [name] => abc ) )
-        // $parameters: Array ( [0] => new_name )
-        // 处理后 $parameters： Array ( [abc] => new_name )
-        
         foreach ($parameters as $key => $value) {
             if (is_numeric($key)) {
                 unset($parameters[$key]);
@@ -1339,7 +1337,12 @@ class Container implements ArrayAccess, ContainerContract
 
     /**
      * Dynamically access container services.<br>
-     * 获取对象属性，实际执行 $this->make($key)
+     * 获取对象属性，实际执行 $this->make($key)<br>
+     * 例如在 Illuminate\Foundation\Bootstrap\LoadConfiguration<br>
+     * 通过 $app->instance('config', $config = new Repository($items));<br>
+     * 设置 config 后可以通过 $app->config 来获取<br>
+     * 因为 $this->make('config') 中会去检查 $this->instances 中是否含有 config 键<br>
+     * 有的话直接返回键对应的值
      *
      * @param  string  $key
      * @return mixed

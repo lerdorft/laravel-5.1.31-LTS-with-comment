@@ -170,11 +170,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     protected function registerBaseBindings()
     {
-        // setInstance() 继承自 Container, 延迟静态绑定 
+        // setInstance() 继承自 Container, 延迟静态绑定
         // 实际执行 static::$instance = $this
         static::setInstance($this);
         // instance() 继承自 Container
-        // 实际执行 $this->instances['app'] = $this    
+        // 实际执行 $this->instances['app'] = $this
         $this->instance('app', $this);
         // instance() 继承自 Container
         // 实际执行 $this->instances['Illuminate\Container\Container'] = $this
@@ -199,8 +199,10 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Run the given array of bootstrap classes.
-     *
+     * 实例化 bootstrappers 数组中的启动器<br>
+     * 调用实例对象的 bootstrap() 方法<br>
+     * 并触发每个启动器的 bootstrapping 和 bootstrapped 事件
+     * 
      * @param  array  $bootstrappers
      * @return void
      */
@@ -424,7 +426,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Set the directory for the environment file.<br>
-     * 设置配置文件的目录 $this->environmentPath
+     * 设置环境配置文件的目录 $this->environmentPath 为 $path
      * 
      * @param  string  $path
      * @return $this
@@ -438,7 +440,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Set the environment file to be loaded during bootstrapping.<br>
-     * 设置配置文件 $this->environmentFile 的名称，默认为 .env
+     * 设置环境配置文件 $this->environmentFile 的名称为 $file，默认为 .env
      *
      * @param  string  $file
      * @return $this
@@ -452,7 +454,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the environment file the application is using.<br>
-     * 获取配置文件 $this->environmentFile 的名称<br>
+     * 获取环境配置文件 $this->environmentFile 的名称<br>
      * 如果设置了 $this->environmentFile 则返回该变量保存的文件名<br>
      * 否则返回默认值 .env
      *
@@ -464,7 +466,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Get or check the current application environment.
+     * 获取或者确认系统当前运行环境
      *
      * @param  mixed
      * @return string
@@ -487,7 +489,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if application is in local environment.
+     * 判断系统是否运行在 local 环境中
      *
      * @return bool
      */
@@ -497,7 +499,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Detect the application's current environment.
+     * 检测当前系统运行环境<br>
+     * 并绑定到 $this->bindings['env']
      *
      * @param  \Closure  $callback
      * @return string
@@ -510,7 +513,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * 检测程序是否运行在命令行下
+     * 检测系统是否运行在命令行模式
      * 
      * @return bool
      */
@@ -520,7 +523,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * 检测程序是否运行在单元测试下
+     * 检测系统是否运行在单元测试模式
      * 
      * @return bool
      */
@@ -561,7 +564,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         }
 
         // 如果 $provider 是字符串就执行 $provider = new $provider($this)
-        // 类似于 new EventServiceProvider($this)
+        // 等同于 new EventServiceProvider($this)
         // 解析过后得到的对象就是当前 register() 的 $provider 参数期望的值
 
         if (is_string($provider)) {
@@ -875,8 +878,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Determine if the application configuration is cached.<br>
-     * 查看 $this->basePath().'/bootstrap/cache/config.php' 文件是否存在<br>
-     * 调用 $this->getCachedConfigPath()
+     * 查看 $this->basePath().'/bootstrap/cache/config.php' 文件是否存在
      * 
      * @return bool
      */
