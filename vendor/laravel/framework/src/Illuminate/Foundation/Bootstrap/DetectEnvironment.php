@@ -25,10 +25,7 @@ class DetectEnvironment
             //
         }
         
-<<<<<<< HEAD
         // 设置容器的 $this['env'] 值，默认为 production
-=======
->>>>>>> 1749bc95df4a1a6e2960ab7b9e29a88df2a11bed
         
         $app->detectEnvironment(function () {
             return env('APP_ENV', 'production');

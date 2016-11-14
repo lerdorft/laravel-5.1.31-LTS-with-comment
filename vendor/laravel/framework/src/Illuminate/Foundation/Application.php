@@ -790,7 +790,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->fireAppCallbacks($this->bootingCallbacks);
         
         // 通过 $this->register() 注册的服务（服务实例对象会被放入 $this->serviceProviders）
-        // 在系统启动后会在此，被通过调用服务实例对象的 boot() 方法启动
+        // 在系统启动后会在此被调用 boot() 方法启动
         
         array_walk($this->serviceProviders, function ($p) {
             $this->bootProvider($p);

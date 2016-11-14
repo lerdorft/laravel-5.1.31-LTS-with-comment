@@ -37,6 +37,7 @@ class AliasLoader
 
     /**
      * Get or create the singleton alias loader instance.
+     * 取得或者创建本类的实例对象
      *
      * @param  array  $aliases
      * @return \Illuminate\Foundation\AliasLoader
@@ -55,7 +56,9 @@ class AliasLoader
     }
 
     /**
-     * Load a class alias if it is registered.
+     * 自动加载函数<br>
+     * 如果 $this->aliases 中有这个类别名，则<br>
+     * 设置一个类的别名并自动加载它
      *
      * @param  string  $alias
      * @return bool|null
@@ -68,7 +71,7 @@ class AliasLoader
     }
 
     /**
-     * Add an alias to the loader.
+     * 添加一个类别名
      *
      * @param  string  $class
      * @param  string  $alias
@@ -80,7 +83,7 @@ class AliasLoader
     }
 
     /**
-     * Register the loader on the auto-loader stack.
+     * 注册自动加载函数（一个实例对象只能注册一次）
      *
      * @return void
      */
@@ -94,7 +97,8 @@ class AliasLoader
     }
 
     /**
-     * Prepend the load method to the auto-loader stack.
+     * 调用 spl_autoload_register() 注册一个自动加载函数<br>
+     * 并放入自动加载函数队列开头（即最优先使用该函数去自动加载）
      *
      * @return void
      */
@@ -104,7 +108,7 @@ class AliasLoader
     }
 
     /**
-     * Get the registered aliases.
+     * 获取实例对象保存的别名清单
      *
      * @return array
      */
@@ -114,7 +118,7 @@ class AliasLoader
     }
 
     /**
-     * Set the registered aliases.
+     * 设置实例对象的别名清单
      *
      * @param  array  $aliases
      * @return void
@@ -125,7 +129,7 @@ class AliasLoader
     }
 
     /**
-     * Indicates if the loader has been registered.
+     * 获取实例对象是否注册过自动加载函数
      *
      * @return bool
      */
@@ -135,7 +139,7 @@ class AliasLoader
     }
 
     /**
-     * Set the "registered" state of the loader.
+     * 设置实例对象的 ”是否注册过自动加载函数“ 这个状态
      *
      * @param  bool  $value
      * @return void
@@ -146,7 +150,7 @@ class AliasLoader
     }
 
     /**
-     * Set the value of the singleton alias loader.
+     * 将实例对象保存至类的静态成员
      *
      * @param  \Illuminate\Foundation\AliasLoader  $loader
      * @return void

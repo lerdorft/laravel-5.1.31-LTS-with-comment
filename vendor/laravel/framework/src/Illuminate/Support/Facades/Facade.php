@@ -99,7 +99,7 @@ abstract class Facade
     }
 
     /**
-     * Get the mockable class for the bound instance.
+     * 获取伪装者的所属类的名称
      *
      * @return string|null
      */
@@ -111,17 +111,23 @@ abstract class Facade
     }
 
     /**
-     * Get the root object behind the facade.
+     * 撕开 Facade 伪装，获取背后的伪装者的类名，类别名，甚至是实例对象<br>
+     * 然后尝试去解析（通过容器的 make()）
      *
      * @return mixed
      */
     public static function getFacadeRoot()
     {
+        
+        // 调用子类的 getFacadeAccessor() 静态方法
+        // 得到的是伪装者的类名，类别名，或者是实例对象
+        
         return static::resolveFacadeInstance(static::getFacadeAccessor());
     }
 
     /**
-     * Get the registered name of the component.
+     * 子类必须重写此方法，因为在父类中，该方法是直接抛错的<br>
+     * 所以不重写的话子类也将直接抛错
      *
      * @return string
      *
@@ -133,26 +139,35 @@ abstract class Facade
     }
 
     /**
-     * Resolve the facade root instance from the container.
+     * 解析对象
      *
      * @param  string|object  $name
      * @return mixed
      */
     protected static function resolveFacadeInstance($name)
     {
+        // 是对象就直接返回了，不用继续处理
+        // 意味着 static::getFacadeAccessor() 可以返回类的实例对象，也可以是类名/别名
+        
         if (is_object($name)) {
             return $name;
         }
-
+        
+        // 如果已经解析过则不再解析，直接返回
+        
         if (isset(static::$resolvedInstance[$name])) {
             return static::$resolvedInstance[$name];
         }
-
+        
+        // 如果 static::getFacadeAccessor() 返回的是类名或别名
+        // 则通过容器实例对象去创建类的实例对象（通过容器实例对象的 make() 方法）
+        // 得到的实例对象保存起来，下次就不用解析了
+        
         return static::$resolvedInstance[$name] = static::$app[$name];
     }
 
     /**
-     * Clear a resolved facade instance.
+     * 从 static::$resolvedInstance 中删除某个已解析对象的记录
      *
      * @param  string  $name
      * @return void
@@ -163,7 +178,7 @@ abstract class Facade
     }
 
     /**
-     * Clear all of the resolved instances.
+     * 清空所有已解析对象的记录
      *
      * @return void
      */
@@ -173,7 +188,7 @@ abstract class Facade
     }
 
     /**
-     * Get the application instance behind the facade.
+     * 返回容器实例对象
      *
      * @return \Illuminate\Contracts\Foundation\Application
      */
@@ -183,7 +198,7 @@ abstract class Facade
     }
 
     /**
-     * Set the application instance.
+     * 保存容器实例对象至延迟静态绑定的成员
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return void
@@ -194,7 +209,10 @@ abstract class Facade
     }
 
     /**
-     * Handle dynamic, static calls to the object.
+     * 当通过 Class::method 这种方式调用类的方法时<br>
+     * 先根据别名自动载入 Class 类<br>
+     * 然后如果无法直接调用类的静态方法 method 则会调用到这里的 __callStatic()<br>
+     * 也就实现了这样的 Facade 用法： Cache::get($name)
      *
      * @param  string  $method
      * @param  array   $args

@@ -7,7 +7,8 @@ use Illuminate\Contracts\Foundation\Application;
 class BootProviders
 {
     /**
-     * Bootstrap the given application.
+     * Bootstrap the given application.<br>
+     * 启动系统
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return void

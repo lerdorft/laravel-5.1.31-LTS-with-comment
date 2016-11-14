@@ -51,11 +51,17 @@ class ProviderRepository
      */
     public function load(array $providers)
     {
+        // 加载 bootstrap/cache/services.json
+        // 如果不存在则无返回（NULL）
+        
         $manifest = $this->loadManifest();
 
         // First we will load the service manifest, which contains information on all
         // service providers registered with the application and which services it
         // provides. This is used to know which services are "deferred" loaders.
+        // 如果上面一步获取缓存文件无返回，即：$manifest = NULL 
+        // 或缓存文件中的 键 providers 对应的内容和配置不同时需要重新生成缓存
+        
         if ($this->shouldRecompile($manifest, $providers)) {
             $manifest = $this->compileManifest($providers);
         }
@@ -136,8 +142,9 @@ class ProviderRepository
     }
 
     /**
-     * Create a new provider instance.
-     *
+     * Create a new provider instance.<br>
+     * 实例化一个服务对象
+     * 
      * @param  string  $provider
      * @return \Illuminate\Support\ServiceProvider
      */
@@ -147,7 +154,10 @@ class ProviderRepository
     }
 
     /**
-     * Determine if the manifest should be compiled.
+     * Determine if the manifest should be compiled.<br>
+     * 判断是否需要重新生成服务清单<br>
+     * 判断条件 is_null($manifest) || $manifest['providers'] != $providers<br>
+     * 也即当无法从 JSON 缓存文件中获取或者缓存文件和配置文件不一致时
      *
      * @param  array  $manifest
      * @param  array  $providers
@@ -159,7 +169,8 @@ class ProviderRepository
     }
 
     /**
-     * Load the service provider manifest JSON file.
+     * Load the service provider manifest JSON file.<br>
+     * 加入服务清单的 JSON 文件
      *
      * @return array|null
      */
@@ -176,7 +187,8 @@ class ProviderRepository
     }
 
     /**
-     * Write the service manifest file to disk.
+     * Write the service manifest file to disk.<br>
+     * 写入服务清单数据
      *
      * @param  array  $manifest
      * @return array
@@ -191,7 +203,8 @@ class ProviderRepository
     }
 
     /**
-     * Create a fresh service manifest data structure.
+     * Create a fresh service manifest data structure.<br>
+     * 生成一个新的服务清单数据结构
      *
      * @param  array  $providers
      * @return array
