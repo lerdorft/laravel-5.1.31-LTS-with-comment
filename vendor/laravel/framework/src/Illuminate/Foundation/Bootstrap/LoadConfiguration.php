@@ -46,7 +46,6 @@ class LoadConfiguration
         // $config 对象也实现了 ArrayAccess 的相关方法
         // 具体看下面设置默认时区的方式
         
-        
         $app->instance('config', $config = new Repository($items));
 
         // Next we will spin through all of the configuration files in the configuration
@@ -62,8 +61,6 @@ class LoadConfiguration
         
         // 实现了 ArrayAccess 的相关方法后才能这样读取配置：
         // $config['app.timezone']
-        // 也可以这样：
-        // $this->app['app.timezone']
         
         date_default_timezone_set($config['app.timezone']);
 
@@ -71,7 +68,8 @@ class LoadConfiguration
     }
 
     /**
-     * Load the configuration items from all of the files.
+     * Load the configuration items from all of the files.<br>
+     * 获取配置后设置配置
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  \Illuminate\Contracts\Config\Repository  $repository
@@ -80,12 +78,21 @@ class LoadConfiguration
     protected function loadConfigurationFiles(Application $app, RepositoryContract $repository)
     {
         foreach ($this->getConfigurationFiles($app) as $key => $path) {
+            // Illuminate\Contracts\Config\Repository 类实现了 ArrayAccess 接口
+            // 所以也可以这么设置配置：
+            // $repository[$key] = require $path;
             $repository->set($key, require $path);
         }
     }
 
     /**
-     * Get all of the configuration files for the application.
+     * Get all of the configuration files for the application.<br>
+     * 从 $app->configPath() 返回的文件夹路径中获取配置文件信息
+     * 返回的数据结构：<br>
+     * Array(<br>
+     *     'app.test' => C:\laravel-5.1.31-LTS-with-comment\config\app\test.php<br>
+     *     'app' => C:\laravel-5.1.31-LTS-with-comment\config\app.php<br>
+     * )
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return array
@@ -93,20 +100,27 @@ class LoadConfiguration
     protected function getConfigurationFiles(Application $app)
     {
         $files = [];
-
+        
+        // $app['path.config'] 的结果等同于 $app->configPath()
+        // 详见 lluminate\Foundation\Application 的 bindPathsInContainer() 方法
+        
         $configPath = realpath($app->configPath());
-
+        
+        // Symfony\Component\Finder\Finder 类实现了 IteratorAggregate 和 Countable 接口
+        // 因此这里可以循环处理 Finder 实例对象
+      
         foreach (Finder::create()->files()->name('*.php')->in($configPath) as $file) {
             $nesting = $this->getConfigurationNesting($file, $configPath);
-
+            
             $files[$nesting.basename($file->getRealPath(), '.php')] = $file->getRealPath();
         }
-
+        
         return $files;
     }
 
     /**
-     * Get the configuration file nesting path.
+     * Get the configuration file nesting path.<br>
+     * 根据配置文件的目录层级（相对于$app->configPath()），例如：a/b/c.php 返回字符串 a.b
      *
      * @param  \Symfony\Component\Finder\SplFileInfo  $file
      * @param  string  $configPath

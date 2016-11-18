@@ -268,8 +268,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Set the base path for the application.<br>
-     * 设置传入的 $basePath 参数为项目根目录<br>
-     * 同时绑定一些项目根目录下的目录至容器
+     * 设置传入的 $basePath 参数为系统根目录<br>
+     * 同时绑定一些系统根目录下的目录至容器
      *
      * @param  string  $basePath
      * @return $this
@@ -306,7 +306,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the application "app" directory.<br>
-     * 返回项目根目录的 app 目录
+     * 返回系统根目录的 app 目录
      * 
      * @return string
      */
@@ -328,7 +328,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the application configuration files.<br>
-     * 返回项目根目录的 config 目录
+     * 返回系统根目录的 config 目录
      * 
      * @return string
      */
@@ -340,7 +340,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * Get the path to the database directory.<br>
      * 如果设置了 $this->databasePath 则返回此目录<br>
-     * 否则返回项目根目录的 database 目录
+     * 否则返回系统根目录的 database 目录
      * 
      * @return string
      */
@@ -366,7 +366,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the language files.<br>
-     * 返回项目根目录的 resources/lang 目录
+     * 返回系统根目录的 resources/lang 目录
      * 
      * @return string
      */
@@ -377,7 +377,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the public / web directory.<br>
-     * 返回项目根目录的 public 目录
+     * 返回系统根目录的 public 目录
      *
      * @return string
      */
@@ -389,7 +389,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * Get the path to the storage directory.<br>
      * 如果设置了 $this->storagePath 则返回此目录<br>
-     * 否则返回项目根目录的 storage 目录
+     * 否则返回系统根目录的 storage 目录
      *
      * @return string
      */
@@ -889,7 +889,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the configuration cache file.<br>
-     * 返回项目根目录下的 bootstrap/cache/config.php 文件路径
+     * 返回系统根目录下的 bootstrap/cache/config.php 文件路径
      * 
      * @return string
      */
@@ -912,7 +912,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the routes cache file.<br>
-     * 返回项目根目录下的 bootstrap/cache/routes.php 文件路径
+     * 返回系统根目录下的 bootstrap/cache/routes.php 文件路径
      *
      * @return string
      */
@@ -923,7 +923,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the cached "compiled.php" file.<br>
-     * 返回项目根目录下的 bootstrap/cache/compiled.php 文件路径
+     * 返回系统根目录下的 bootstrap/cache/compiled.php 文件路径
      *
      * @return string
      */
@@ -934,7 +934,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Get the path to the cached services.json file.<br>
-     * 返回项目根目录下的 bootstrap/cache/services.json 文件路径
+     * 返回系统根目录下的 bootstrap/cache/services.json 文件路径
      *
      * @return string
      */
@@ -1217,7 +1217,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         if (!is_null($this->namespace)) {
             return $this->namespace;
         }
-        //读取项目根目录的 composer.json 并解成一个数组
+        //读取系统根目录的 composer.json 并解成一个数组
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
 
         foreach ((array) data_get($composer, 'autoload.psr-4') as $namespace => $path) {

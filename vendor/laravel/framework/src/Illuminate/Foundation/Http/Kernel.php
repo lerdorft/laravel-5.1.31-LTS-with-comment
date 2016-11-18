@@ -33,13 +33,13 @@ class Kernel implements KernelContract
      * @var array
      */
     protected $bootstrappers = [
-        'Illuminate\Foundation\Bootstrap\DetectEnvironment',
-        'Illuminate\Foundation\Bootstrap\LoadConfiguration',
-        'Illuminate\Foundation\Bootstrap\ConfigureLogging',
-        'Illuminate\Foundation\Bootstrap\HandleExceptions',
-        'Illuminate\Foundation\Bootstrap\RegisterFacades',
-        'Illuminate\Foundation\Bootstrap\RegisterProviders',
-        'Illuminate\Foundation\Bootstrap\BootProviders',
+        'Illuminate\Foundation\Bootstrap\DetectEnvironment', // 系统运行环境监测
+        'Illuminate\Foundation\Bootstrap\LoadConfiguration', // 加载配置
+        'Illuminate\Foundation\Bootstrap\ConfigureLogging',  // 日志设置
+        'Illuminate\Foundation\Bootstrap\HandleExceptions',  // 错误处理
+        'Illuminate\Foundation\Bootstrap\RegisterFacades',   // Facade 门面设置
+        'Illuminate\Foundation\Bootstrap\RegisterProviders', // 注册服务
+        'Illuminate\Foundation\Bootstrap\BootProviders',     // 启动系统
     ];
 
     /**

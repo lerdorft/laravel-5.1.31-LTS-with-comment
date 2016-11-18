@@ -59,8 +59,8 @@ class ProviderRepository
         // First we will load the service manifest, which contains information on all
         // service providers registered with the application and which services it
         // provides. This is used to know which services are "deferred" loaders.
-        // 如果上面一步获取缓存文件无返回，即：$manifest = NULL 
-        // 或缓存文件中的 键 providers 对应的内容和配置不同时需要重新生成缓存
+        // 如果上面一步获取缓存文件无返回，即：$manifest = NULL
+        // 或缓存文件中的键 providers 对应的内容和配置不同时需要重新生成缓存
         
         if ($this->shouldRecompile($manifest, $providers)) {
             $manifest = $this->compileManifest($providers);
@@ -76,10 +76,17 @@ class ProviderRepository
         // We will go ahead and register all of the eagerly loaded providers with the
         // application so their services can be registered with the application as
         // a provided service. Then we will set the deferred service list on it.
+        // 注册那些 ”急切的“ 服务
+        // 这些服务的 register() 方法会被调用
+        // 并被标记为已注册
+        // 如果系统已启动则服务的 boot() 方法（如果有的话）也会被调用
+        
         foreach ($manifest['eager'] as $provider) {
             $this->app->register($this->createProvider($provider));
         }
-
+        
+        // 将延迟加载的服务清单添加到容器
+        
         $this->app->addDeferredServices($manifest['deferred']);
     }
 
@@ -170,7 +177,8 @@ class ProviderRepository
 
     /**
      * Load the service provider manifest JSON file.<br>
-     * 加入服务清单的 JSON 文件
+     * 载入记录服务清单的 JSON 文件，返回反序列化后的内容<br>
+     * 如果文件不存在则返回 null
      *
      * @return array|null
      */
