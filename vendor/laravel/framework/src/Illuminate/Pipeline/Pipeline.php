@@ -61,7 +61,8 @@ class Pipeline implements PipelineContract
     }
 
     /**
-     * Set the array of pipes.
+     * Set the array of pipes.<br>
+     * 设置一堆需要经过的管道（中间件）
      *
      * @param  array|mixed  $pipes
      * @return $this
@@ -74,7 +75,8 @@ class Pipeline implements PipelineContract
     }
 
     /**
-     * Set the method to call on the pipes.
+     * Set the method to call on the pipes.<br>
+     * 设置用于执行管道（中间件）的方法（默认是 handle）
      *
      * @param  string  $method
      * @return $this
@@ -87,7 +89,8 @@ class Pipeline implements PipelineContract
     }
 
     /**
-     * Run the pipeline with a final destination callback.
+     * Run the pipeline with a final destination callback.<br>
+     * 执行管道（中间件），并执行最终 $destination 闭包函数（一般是路由相关函数）
      *
      * @param  \Closure  $destination
      * @return mixed
@@ -95,7 +98,7 @@ class Pipeline implements PipelineContract
     public function then(Closure $destination)
     {
         
-        // 当经过 App\Http\Kernel::$middleware 执行后最后执行 $firstSlice 闭包函数
+        // 当执行完 App\Http\Kernel::$middleware 保存的中间件后最后执行 $firstSlice 闭包函数
         // $firstSlice 即 Illuminate\Foundation\Http\Kernel::dispatchToRouter() 返回的闭包函数
         // $firstSlice 在 Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::handle() 中被调用
         // 该函数的作用是路由

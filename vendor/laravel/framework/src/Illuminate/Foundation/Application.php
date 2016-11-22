@@ -761,7 +761,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Determine if the application has booted.
+     * 获取系统是否已经启动的状态
      *
      * @return bool
      */
@@ -771,7 +771,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Boot the application's service providers.<br> 
+     * 启动系统，启动注册的服务<br> 
      * Illuminate\Foundation\Bootstrap\BootProviders 中会调用此方法
      * 
      * @return void
@@ -783,10 +783,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         if ($this->booted) {
             return;
         }
-
-        // Once the application has booted we will also fire some "booted" callbacks
-        // for any listeners that need to do work after this initial booting gets
-        // finished. This is useful when ordering the boot-up processes we run.
+        
+        // 调用系统启动中相关的钩子函数
+        
         $this->fireAppCallbacks($this->bootingCallbacks);
         
         // 通过 $this->register() 注册的服务（服务实例对象会被放入 $this->serviceProviders）
@@ -799,12 +798,14 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // 标记系统为已启动，防止重复启动
         
         $this->booted = true;
-
+        
+        // 调用系统启动后相关的钩子函数
+        
         $this->fireAppCallbacks($this->bootedCallbacks);
     }
 
     /**
-     * 启动服务（运行服务对象的 boot 方法）
+     * 启动服务（运行服务对象的 boot() 方法）
      *
      * @param  \Illuminate\Support\ServiceProvider  $provider
      * @return mixed
@@ -818,7 +819,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Register a new boot listener.<br>
-     * 将 函数 $callback 放入 $this->bootingCallbacks 数组中
+     * 将用于系统启动时的钩子函数放入变量中
      * 
      * @param  mixed  $callback
      * @return void
@@ -829,7 +830,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     }
 
     /**
-     * Register a new "booted" listener.
+     * Register a new "booted" listener.<br>
+     * 将用于系统启动后的钩子函数放入变量中，并调用传入的函数
      *
      * @param  mixed  $callback
      * @return void
@@ -845,7 +847,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Call the booting callbacks for the application.<br>
-     * 执行 $callbacks 数组中的函数，并将调用此方法的实例对象作为唯一参数传入函数
+     * 执行 $callbacks 数组中的函数，并将调用容器实例对象作为唯一参数传入函数
      *
      * @param  array  $callbacks
      * @return void
@@ -900,7 +902,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Determine if the application routes are cached.<br>
-     * 查看 $this->basePath().'/bootstrap/cache/routes.php' 文件是否存在
+     * 查看 $this->basePath().'/bootstrap/cache/routes.php' 文件是否存在<br>
      * 调用 $this->getCachedRoutesPath()
      *
      * @return bool
@@ -945,7 +947,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     /**
      * Determine if the application is currently down for maintenance.<br>
-     * 判断项目是否处于下线维护中
+     * 判断项目是否处于下线维护中<br>
+     * 当系统根目录 storage/framework/down 文件存在时认为系统下线维护中
      * 
      * @return bool
      */
