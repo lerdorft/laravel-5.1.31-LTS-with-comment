@@ -574,7 +574,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // 所有继承自 Illuminate\Support\ServiceProvider 类的 service provider
         // 都必须实现 register 方法（父级类中是抽象方法）
         // 通常 service provider 的 register 方法通过 Illuminate\Contracts\Container 类
-        // 中的 singleton, bind 或者 ArrayAccess 提供的方法绑定至容器的 $this->bindings
+        // 中的 singleton, bind 或者 ArrayAccess 接口提供的方法绑定至容器的 $this->bindings
 
         $provider->register();
 
@@ -599,7 +599,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         // If the application has already booted, we will call this boot method on
         // the provider class so it has an opportunity to do its boot logic and
         // will be ready for any usage by the developer's application logics.
-        // 当系统已经启动后（这里的 $this->booted 为 true，Illuminate\Foundation\Bootstrap\BootProviders 中启动）
+        // 当系统已经启动后（启动后 $this->booted 为 true，Illuminate\Foundation\Bootstrap\BootProviders 中启动）
         // 再注册的新服务，该服务实例对象的 boot() 方法会被调用
 
         if ($this->booted) {

@@ -24,12 +24,20 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(Router $router)
     {
         $this->setRootControllerNamespace();
-
+        
+        // 如果路由配置文件已缓存，则加载缓存文件（默认为：bootstrap/cache/routes.php）
+        
         if ($this->app->routesAreCached()) {
             $this->loadCachedRoutes();
         } else {
+            
+            // 加载路由配置文件（默认为：app/Http/routes.php）
+            
             $this->loadRoutes();
-
+            
+            // 添加（至 $this->app->bootedCallbacks）系统启动后的钩子函数
+            // 如果系统已启动，则该函数会立即被执行
+            
             $this->app->booted(function () use ($router) {
                 $router->getRoutes()->refreshNameLookups();
             });
@@ -51,7 +59,10 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load the cached routes for the application.
+     * Load the cached routes for the application.<br>
+     * 添加（至 $this->app->bootedCallbacks）系统启动后的钩子函数<br>
+     * 如果系统已启动，则该函数会立即被执行<br>
+     * 该函数加载路由配置的缓存文件
      *
      * @return void
      */
